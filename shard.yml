@@ -1,0 +1,15 @@
+name: stitch
+version: 0.1.0
+
+authors:
+  - Sam Eaton <same@qualtrics.com>
+
+targets:
+  stitch:
+    main: src/stitch.cr
+
+crystal: 0.21.1
+dependencies:
+  radix:
+    github: luislavena/radix
+license: MIT
