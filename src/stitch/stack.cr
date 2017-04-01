@@ -8,6 +8,11 @@ module Stitch
       @block = block
     end
 
+    def initialize(middlewares : Array(Stitch::Handler))
+      @middlewares = middlewares
+      @block = nil
+    end
+
     def initialize(&block : HTTP::Server::Context -> String)
       @middlewares = nil
       @block = block

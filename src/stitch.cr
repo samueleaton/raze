@@ -3,45 +3,47 @@ require "./stitch/*"
 require "radix"
 
 module Stitch
-  def self.get(path, middlewares : Array(Stitch::Handler), &block : HTTP::Server::Context -> String)
-    # build stack
-    stack = Stitch::Stack.new(middlewares, &block)
+  GLOBAL_HANDLERS = [] of HTTP::Handler
 
-    # add stack to radix
-    Stitch::ServerHandler::INSTANCE.add_stack "GET", path, stack
-  end
-
-  def self.get(path, &block : HTTP::Server::Context -> String)
-    # build stack
-    stack = Stitch::Stack.new(&block)
-
-    # add stack to radix
-    Stitch::ServerHandler::INSTANCE.add_stack "GET", path, stack
+  def self.add_global_handler(handler : HTTP::Handler)
+    GLOBAL_HANDLERS << handler
   end
 
   def self.run(port = 7777)
     handler = Stitch::ServerHandler::INSTANCE
-    server = HTTP::Server.new("127.0.0.1", port, [handler])
-    # puts "\nlistening at localhost:" + port.to_s
+    GLOBAL_HANDLERS << handler
+    server = HTTP::Server.new("127.0.0.1", port, GLOBAL_HANDLERS)
+    puts "\nlistening at localhost:" + port.to_s
     server.listen
   end
-
 end
 
-# class Authenticator < Stitch::Handler
-#   def call(context, stack)
-#     context.response.puts "Access Granted."
-#     stack.next
-#   end
-# end
+class Authenticator < Stitch::Handler
+  def call(context, stack)
+    context.response.puts "Access Granted."
+    stack.next
+  end
+end
 
+class Logger
+  include HTTP::Handler
+
+  def call(context)
+    puts context.request.method + " " + context.request.path
+    call_next(context)
+  end
+end
+
+Stitch.add_global_handler Logger.new
 # Stitch.get "/user", [Authenticator.new, Stitch::Handler.new, Stitch::Handler.new] do |context|
 #   # puts "end of the road"
 #   "/user"
 # end
 
-Stitch.get "/hello" do |context|
+Stitch.get "/hello", [Authenticator.new.as(Stitch::Handler), Stitch::Handler.new] do |context|
   "Hello, world!"
 end
+
+Stitch.get "/sam", [Authenticator.new.as(Stitch::Handler), Stitch::Handler.new]
 
 Stitch.run
