@@ -1,63 +1,47 @@
+require "http"
 require "./stitch/*"
 require "radix"
 
 module Stitch
-  def self.get(path, middlewares : Array(Stitch::Handler), &block)
-    mw_caller = Stitch::Wrapper.new(path, middlewares, &block)
-    mw_caller.prepare_next
+  def self.get(path, middlewares : Array(Stitch::Handler), &block : HTTP::Server::Context -> String)
+    # build stack
+    stack = Stitch::Stack.new(middlewares, &block)
+
+    # add stack to radix
+    Stitch::ServerHandler::INSTANCE.add_stack "GET", path, stack
   end
 
-  class Wrapper
-    @index = -1
+  def self.get(path, &block : HTTP::Server::Context -> String)
+    # build stack
+    stack = Stitch::Stack.new(&block)
 
-    def initialize(path : String, middlewares : Array(Stitch::Handler), &block)
-      @path = path
-      @middlewares = middlewares
-      @block = block
-    end
-
-    def prepare_next
-      @index += 1
-      run_next
-    end
-
-    def run_next
-      next_mw = @middlewares[@index]?
-      if next_mw
-        @middlewares[@index].call @path, @index, ->prepare_next
-      else
-        @block.call
-      end
-    end
+    # add stack to radix
+    Stitch::ServerHandler::INSTANCE.add_stack "GET", path, stack
   end
 
-  class Handler
-    def call(path, index, prep_next)
-      puts "this is handler: " + index.to_s
-      prep_next.call
-    end
+  def self.run(port = 7777)
+    handler = Stitch::ServerHandler::INSTANCE
+    server = HTTP::Server.new("127.0.0.1", port, [handler])
+    # puts "\nlistening at localhost:" + port.to_s
+    server.listen
   end
+
 end
 
-
-# tree = Radix::Tree(String).new
-
-# tree.add "/", "root"
-# tree.add "/user", "user"
-# tree.add "/api/v1", "apiV1"
-
-# result = tree.find "/user"
-
-# if result.found?
-#   puts "found: " + result.payload
-# else
-#   puts "not found"
+# class Authenticator < Stitch::Handler
+#   def call(context, stack)
+#     context.response.puts "Access Granted."
+#     stack.next
+#   end
 # end
 
+# Stitch.get "/user", [Authenticator.new, Stitch::Handler.new, Stitch::Handler.new] do |context|
+#   # puts "end of the road"
+#   "/user"
+# end
 
-
-
-Stitch.get "/user", [Stitch::Handler.new, Stitch::Handler.new, Stitch::Handler.new] do
-  puts "end of the road"
-  "yee"
+Stitch.get "/hello" do |context|
+  "Hello, world!"
 end
+
+Stitch.run
