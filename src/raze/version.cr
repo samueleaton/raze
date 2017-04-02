@@ -1,3 +1,3 @@
-module Stitch
+module Raze
   VERSION = "0.1.0"
 end
