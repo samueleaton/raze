@@ -56,10 +56,40 @@ module Raze
   {% end %}
 
   def self.ws(path, &block : HTTP::WebSocket, HTTP::Server::Context -> Void)
-    # stack = Raze::Stack.new(&block)
-    # Raze::ServerHandler::INSTANCE.add_stack "WS", path, stack
-    Raze::WebSocketHandler.new path, &block
+    puts "check 1: #{path}"
+    raise "websocket path \"#{path}\" must start with a \"/\"" unless path.starts_with? "/"
+    stack = Raze::WebSocketStack.new(&block)
+    Raze::WebSocketServerHandler::INSTANCE.add_stack path, stack
   end
+
+  def self.ws(path, middlewares : Array(Raze::WebSocketHandler))
+    puts "check 2: #{path}"
+    raise "websocket path \"#{path}\" must start with a \"/\"" unless path.starts_with? "/"
+    stack = Raze::WebSocketStack.new(middlewares)
+    Raze::WebSocketServerHandler::INSTANCE.add_stack path, stack
+  end
+
+  def self.ws(path, middlewares : Array(Raze::WebSocketHandler), &block : HTTP::WebSocket, HTTP::Server::Context -> Void)
+    puts "check 3: #{path}"
+    raise "websocket path \"#{path}\" must start with a \"/\"" unless path.starts_with? "/"
+    stack = Raze::WebSocketStack.new(middlewares, &block)
+    Raze::WebSocketServerHandler::INSTANCE.add_stack path, stack
+  end
+
+  def self.ws(path, *middlewares)
+    puts "check 4: #{path}"
+    raise "websocket path \"#{path}\" must start with a \"/\"" unless path.starts_with? "/"
+    stack = Raze::WebSocketStack.new(*middlewares)
+    Raze::WebSocketServerHandler::INSTANCE.add_stack path, stack
+  end
+
+  def self.ws(path, *middlewares, &block : HTTP::WebSocket, HTTP::Server::Context -> Void)
+    puts "check 5: #{path}"
+    raise "websocket path \"#{path}\" must start with a \"/\"" unless path.starts_with? "/"
+    stack = Raze::WebSocketStack.new(*middlewares, &block)
+    Raze::WebSocketServerHandler::INSTANCE.add_stack path, stack
+  end
+
 
   def self.error(status_code, &block : HTTP::Server::Context, Exception -> _)
     Raze.config.error_handlers[status_code] = ->(context : HTTP::Server::Context, error : Exception) { block.call(context, error).to_s }

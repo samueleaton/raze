@@ -42,6 +42,18 @@ Note: File upload is not part of the scope of this project. This is a routing/mi
 - [ ] make sure ssl/https is easy to enable/configure
 - [ ] Design custom 404 and 500 pages
 
+- [ ] Remove concat from stacks and allow to run mutliple stacks based on routing so that the following example works
+
+```ruby
+# The second line of code matches and is merged into the stack with the first line,
+# but the 3rd line will also match with the first line but there will already be a
+# block from the second line in the stack
+Raze.ws "/yee**", WebSocketAuthenticator.new
+Raze.ws "/yeezy" { |ws, ctx| }
+Raze.ws "/yeeboi" { |ws, ctx| } # Exception: There is already an existing block for WS path
+```
+
+
 ### Future Plans:
 
 - [ ] Add date goals to all of the checklist items

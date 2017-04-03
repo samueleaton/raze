@@ -28,5 +28,5 @@ module Raze
   end
 end
 
+# TODO: move this to config setup method
 Raze.static_file_indexer.index_files ""
-puts "\nstatic_files: " + Raze.static_file_indexer.static_files.inspect.gsub(/,/, ",\n ").gsub(/\{/, "{\n  ")
