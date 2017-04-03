@@ -55,6 +55,12 @@ module Raze
     end
   {% end %}
 
+  def self.ws(path, &block : HTTP::WebSocket, HTTP::Server::Context -> Void)
+    # stack = Raze::Stack.new(&block)
+    # Raze::ServerHandler::INSTANCE.add_stack "WS", path, stack
+    Raze::WebSocketHandler.new path, &block
+  end
+
   def self.error(status_code, &block : HTTP::Server::Context, Exception -> _)
     Raze.config.error_handlers[status_code] = ->(context : HTTP::Server::Context, error : Exception) { block.call(context, error).to_s }
   end

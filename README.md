@@ -36,6 +36,7 @@ Note: File upload is not part of the scope of this project. This is a routing/mi
 - [x] Make sure special http protocols work (e.g. HEAD/OPTIONS request)
 - [x] Have exception handling and error rescuing for dev and prod
 - [ ] implement websocket functionality
+- [ ] websocket routes should be able to parse params/query from url
 - [ ] Design logos
 - [ ] Test coverage
 - [ ] make sure ssl/https is easy to enable/configure
