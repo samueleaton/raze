@@ -3,49 +3,54 @@
 {% end %}
 
 class Raze::StaticFileHandler < HTTP::StaticFileHandler
-  def call(context)
-    return call_next(context) if context.request.path.not_nil! == "/"
+  def call(ctx)
+    return call_next(ctx) if ctx.request.path.not_nil! == "/"
 
-    unless context.request.method == "GET" || context.request.method == "HEAD"
+    unless ctx.request.method == "GET" || ctx.request.method == "HEAD"
       if @fallthrough
-        call_next(context)
+        call_next(ctx)
       else
-        context.response.status_code = 405
-        context.response.headers.add("Allow", "GET, HEAD")
+        ctx.response.status_code = 405
+        ctx.response.headers.add("Allow", "GET, HEAD")
       end
       return
     end
 
-    request_path = URI.unescape(context.request.path.not_nil!).rstrip "/"
+    request_path = URI.unescape(ctx.request.path.not_nil!).rstrip "/"
+
+    file_or_dir = Raze.static_file_indexer.static_files[request_path]?
+    return call_next(ctx) unless file_or_dir
+
     file_path = String.build do |str|
-      str << Raze.config.public_dir
+      str << Raze.config.static_dir
       str << request_path
     end
 
-    file_or_dir = Raze.static_file_indexer.static_files[request_path]?
-    return call_next(context) unless file_or_dir
+    process_request(ctx, file_or_dir, request_path, file_path)
+  end
 
-    if file_or_dir == "dir"
-      context.response.content_type = "text/html"
-      directory_listing(context.response, request_path, file_path)
-    elsif file_or_dir == "file"
-      return if etag(context, file_path)
-      Raze.send_file(context, file_path)
+  private def process_request(ctx, file_type, request_path, file_path)
+    if file_type == "dir"
+      ctx.response.content_type = "text/html"
+      directory_listing(ctx.response, request_path, file_path)
+    elsif file_type == "file"
+      return if etag(ctx, file_path)
+      Raze::Helpers.send_file(ctx, file_path)
     else
-      call_next(context)
+      call_next(ctx)
     end
   end
 
-  private def etag(context, file_path)
+  private def etag(ctx, file_path)
     etag = %{W/"#{File.lstat(file_path).mtime.epoch.to_s}"}
 
-    headers = context.request.headers
+    headers = ctx.request.headers
     headers["ETag"] = etag
     return false if !headers["If-None-Match"]? || headers["If-None-Match"] != etag
 
-    context.response.headers.delete "Content-Type"
-    context.response.content_length = 0
-    context.response.status_code = 304 # not modified
+    ctx.response.headers.delete "Content-Type"
+    ctx.response.content_length = 0
+    ctx.response.status_code = 304 # not modified
     return true
   end
 end

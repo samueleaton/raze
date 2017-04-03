@@ -23,6 +23,7 @@ module Raze
         existing_stack.concat stack
       else
         @tree.add node, stack
+        @tree.add(radix_path("HEAD", path), Raze::Stack.new() {|ctx| ""}) if method == "GET"
       end
     end
 
@@ -35,23 +36,27 @@ module Raze
     # def call(context, &block)
     # end
 
-    def call(context)
+    def call(ctx)
       # check if there is a stack in radix that matches path
-      lookup_result = lookup_route context.request.method, context.request.path
+      lookup_result = lookup_route ctx.request.method, ctx.request.path
       if lookup_result.found?
-        context.params = lookup_result.params
+        ctx.params = lookup_result.params
+        ctx.query = ctx.request.query
+
+        ctx.parse_body if ctx.request.body
+
         stack = lookup_result.payload.as(Raze::Stack)
-        content = stack.run context
-        if content.is_a?(String) && !context.response.closed?
-          context.response.print content
+        content = stack.run ctx
+        if content.is_a?(String) && !ctx.response.closed?
+          ctx.response.print content
         end
       else
         # TODO: raise an exception that will be rescued and return a 404
-        unless context.response.headers.has_key?("Content-Type")
-          context.response.content_type = "text/html"
+        unless ctx.response.headers.has_key?("Content-Type")
+          ctx.response.content_type = "text/html"
         end
-        context.response.print "Not Found"
-        context.response.status_code = 404
+        ctx.response.print "Not Found"
+        ctx.response.status_code = 404
       end
     end
 

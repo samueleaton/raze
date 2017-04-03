@@ -1,4 +1,4 @@
-# stitch
+# Raze
 
 TODO: Write a description here
 
@@ -16,7 +16,7 @@ TODO: Write development instructions here
 
 ## Contributing
 
-1. Fork it ( https://github.com/[your-github-name]/stitch/fork )
+1. Fork it ( https://github.com/[your-github-name]/raze/fork )
 2. Create your feature branch (git checkout -b my-new-feature)
 3. Commit your changes (git commit -am 'Add some feature')
 4. Push to the branch (git push origin my-new-feature)
@@ -24,7 +24,7 @@ TODO: Write development instructions here
 
 ## Contributors
 
-- [[your-github-name]](https://github.com/[your-github-name]) Sam Eaton - creator, maintainer
+- [Sam Eaton](https://github.com/samueleaton) Sam Eaton - creator, maintainer
 
 ## Todo
 
@@ -32,8 +32,8 @@ Note: File upload is not part of the scope of this project. This is a routing/mi
 
 ### MVP:
 
-- [ ] Make sure params/query/json/x-www-form-urlencoded parsing works
-- [ ] Make sure special http protocols work (e.g. HEAD/OPTIONS request)
+- [x] Make sure params/query/json/x-www-form-urlencoded parsing works
+- [x] Make sure special http protocols work (e.g. HEAD/OPTIONS request)
 - [ ] Have exception handling and error rescuing for dev and prod
 - [ ] implement websocket functionality
 

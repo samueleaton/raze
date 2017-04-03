@@ -4,7 +4,7 @@ class Raze::StaticFileIndexer
   property static_files = {} of String => String
 
   def index_files(directory)
-    base_dir = Raze.config.public_dir
+    base_dir = Raze.config.static_dir
     Dir.foreach "#{base_dir}#{directory}" do |f|
       next if f == "." || f == ".."
       if File.directory? "#{base_dir}#{directory}/#{f}"
