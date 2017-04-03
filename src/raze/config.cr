@@ -9,6 +9,7 @@ class Raze::Config
   property logging = true
   property always_rescue = true
   property global_handlers = [] of HTTP::Handler
+  property error_handlers = {} of Int32 => HTTP::Server::Context, Exception -> String
   # property error_handler = nil
   # @server = uninitialized HTTP::Server
 end

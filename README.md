@@ -30,24 +30,25 @@ TODO: Write development instructions here
 
 Note: File upload is not part of the scope of this project. This is a routing/middleware library. The line needs to be drawn somewhere for simplicity's sake. 👍
 
-### MVP:
+### MVP for project repo public:
 
 - [x] Make sure params/query/json/x-www-form-urlencoded parsing works
 - [x] Make sure special http protocols work (e.g. HEAD/OPTIONS request)
-- [ ] Have exception handling and error rescuing for dev and prod
+- [x] Have exception handling and error rescuing for dev and prod
 - [ ] implement websocket functionality
+- [ ] Design logos
+- [ ] Test coverage
+- [ ] make sure ssl/https is easy to enable/configure
+- [ ] Design custom 404 and 500 pages
 
 ### Future Plans:
 
 - [ ] Add date goals to all of the checklist items
-- [ ] Design logos/website
-- [ ] Test coverage
 - [ ] form-data parsing
 - [ ] Ability to opt out of static indexing?
 - [ ] Create middleware (opt-in) that allows a non-indexed public folder
 - [ ] create thorough examples for how to create a non-indexed public folder
-- [ ] Create a very basic logging middleware and show examples for how to make a more advanced one.
-- [ ] Create a website
+- [ ] Design website
 - [ ] Create a "good" website
 - [ ] enable/disable features in dev and prod
-- [ ] make sure ssl/https is easy to enable/configure
+- [ ] Create a very basic logging middleware and show examples for how to make a more advanced one.

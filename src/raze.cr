@@ -9,8 +9,29 @@ require "./raze/*"
 module Raze
   def self.run(port = Raze.config.port)
     config = Raze.config
-    config.global_handlers << Raze::StaticFileHandler.new("./public")
+    config.global_handlers << Raze::StaticFileHandler.new(Raze.config.static_dir)
+    config.global_handlers << Raze::ExceptionHandler::INSTANCE
     config.global_handlers << Raze::ServerHandler::INSTANCE
+
+    unless Raze.config.error_handlers.has_key?(404)
+      Raze.error 404 do |ctx|
+        unless ctx.response.headers.has_key?("Content-Type")
+          ctx.response.content_type = "text/html"
+        end
+        ctx.response.status_code = 404
+        "Not Found"
+      end
+    end
+
+    unless Raze.config.error_handlers.has_key?(500)
+      Raze.error 500 do |ctx, ex|
+        unless ctx.response.headers.has_key?("Content-Type")
+          ctx.response.content_type = "text/html"
+        end
+        ctx.response.status_code = 500
+        Raze.config.env == "development" ? ex.message : "An error ocurred"
+      end
+    end
 
     server = HTTP::Server.new(config.host, config.port, config.global_handlers)
     puts "\nlistening at localhost:" + Raze.config.port.to_s
@@ -78,7 +99,7 @@ end
 Raze.get "/hello/:name" do |context|
   puts "raw query: #{context.request.query}"
   puts "query params: #{context.query}"
-  "yee, #{context.params["name"]}"
+  "yee, #{context.params["bad_name"]}"
 end
 
 # Raze.get "/hello/world", [auth2, Raze::Handler.new] do |context|

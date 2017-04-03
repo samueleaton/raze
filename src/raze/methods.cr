@@ -54,4 +54,8 @@ module Raze
       Raze::ServerHandler::INSTANCE.add_stack {{method}}.upcase, path, stack
     end
   {% end %}
+
+  def self.error(status_code, &block : HTTP::Server::Context, Exception -> _)
+    Raze.config.error_handlers[status_code] = ->(context : HTTP::Server::Context, error : Exception) { block.call(context, error).to_s }
+  end
 end
