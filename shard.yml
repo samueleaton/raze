@@ -2,14 +2,16 @@ name: raze
 version: 0.1.0
 
 authors:
-  - Sam Eaton <same@qualtrics.com>
+  - Sam Eaton <sam@eaton.party.com>
 
 targets:
   raze:
     main: src/raze.cr
 
 crystal: 0.21.1
+
 dependencies:
   radix:
     github: luislavena/radix
+
 license: MIT

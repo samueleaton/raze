@@ -4,7 +4,13 @@ TODO: Write a description here
 
 ## Installation
 
-TODO: Write installation instructions here
+Add this to your application's `shard.yml`:
+
+```yaml
+dependencies:
+  raze:
+    github: samueleaton/raze
+```
 
 ## Usage
 

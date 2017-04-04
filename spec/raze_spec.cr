@@ -1,6 +1,6 @@
 require "./spec_helper"
 
-describe Stitch do
+describe Raze do
   # TODO: Write tests
 
   it "works" do

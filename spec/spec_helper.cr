@@ -1,2 +1,2 @@
 require "spec"
-require "../src/stitch"
+require "../src/raze"
