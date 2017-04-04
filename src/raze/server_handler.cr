@@ -3,33 +3,54 @@ require "./ext/context"
 # The main server handler.
 class Raze::ServerHandler
   include HTTP::Handler
-
   INSTANCE = new
-  # property tree
+
+  getter tree
 
   def initialize
     @tree = Radix::Tree(Raze::Stack).new
+    @radix_paths = [] of String
   end
 
+  # Adds a stack to the tree
+  # 
+  # NOTE: This method is only ran at server startup so the extra internal sanity
+  # checks will not affect server performance
   def add_stack(method, path, stack)
-    return add_all_stack(path, stack) if method == "ALL"
-
     node = radix_path(method, path)
-    lookup_result = lookup_route(method, path)
+    @radix_paths.each do |existing_path|
+      # if you can:
+      #   (1) add the new radix path to a tree by itself, and
+      #   (2) look up an existing path and it matches the new radix path
+      # then less specific path (e.g. with a "*" or ":") is being defined after a more specific path
+      temp_tree = Radix::Tree(String).new
+      temp_tree.add node, node
+      temp_result = temp_tree.find existing_path
+      if temp_result.found? && temp_result.payload == node
+        raise "the less specific path \"#{node}\" must be defined before the more specific path \"#{existing_path}\""
+      end
+    end
+
+    lookup_result = @tree.find node
+
     if lookup_result.found?
       # check if stack has an ending block
       existing_stack = lookup_result.payload.as(Raze::Stack)
       raise "There is already an existing block for #{method.upcase} #{path}." if existing_stack.block?
-      existing_stack.concat stack
+      if lookup_result.key == node
+        existing_stack.concat stack
+      else
+        # add tree to the existing stack because there is some globbing going on
+        existing_stack.tree = Radix::Tree(Raze::Stack).new unless existing_stack.tree?
+        sub_tree = existing_stack.tree.as(Radix::Tree(Raze::Stack))
+        # add stack to this sub tree
+        sub_tree.add node, stack
+        sub_tree.add(radix_path("HEAD", path), Raze::Stack.new() {|ctx| ""}) if method == "GET"
+      end
     else
-      @tree.add node, stack
-      @tree.add(radix_path("HEAD", path), Raze::Stack.new() {|ctx| ""}) if method == "GET"
+      add_to_tree(node, stack)
+      add_to_tree(radix_path("HEAD", path), Raze::Stack.new() {|ctx| ""}) if method == "GET"
     end
-  end
-
-  # TODO: this needs to also lookup ALL paths
-  def lookup_route(method, path)
-    @tree.find radix_path(method, path)
   end
 
   # TODO: allow passing a block to call
@@ -38,7 +59,8 @@ class Raze::ServerHandler
 
   def call(ctx)
     # check if there is a stack in radix that matches path
-    lookup_result = lookup_route ctx.request.method, ctx.request.path
+    node = radix_path ctx.request.method, ctx.request.path
+    lookup_result = @tree.find node
     raise Raze::Exceptions::RouteNotFound.new(ctx) unless lookup_result.found?
 
     ctx.params = lookup_result.params
@@ -55,23 +77,9 @@ class Raze::ServerHandler
     end
   end
 
-  private def add_all_stack(path, stack)
-    if stack.block?
-      # if method is ALL, the stack can have a block if there is not already a
-      # more specific method with a block
-      Raze::HTTP_METHODS_OPTIONS.each do |method_option|
-        method_option_match = lookup_route(method_option, path)
-        if method_option_match.found?
-          existing_method_stack = method_option_match.payload.as(Raze::Stack)
-          if existing_method_stack.block?
-            raise "There is already an existing block for #{method_option.upcase} #{path}. A block for ALL is not allowed."
-          end
-        end
-      end
-    end
-    Raze::HTTP_METHODS_OPTIONS.each do |method_option|
-      add_stack(method_option, path, stack)
-    end
+  private def add_to_tree(node : String, stack : Raze::Stack)
+    @tree.add node, stack
+    @radix_paths << node
   end
 
   private def radix_path(method, path)

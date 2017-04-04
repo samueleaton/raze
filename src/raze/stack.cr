@@ -1,6 +1,11 @@
 class Raze::Stack
   getter middlewares
   getter block
+  
+  # A sub tree is used in case this stack is indexed using a wildcard
+  # For example, if there is one stack at the path "/hel**" and another at the
+  # path "/hello", the latter would be in the subtree of the first
+  property tree : Radix::Tree(Raze::Stack) | Nil = nil
 
   def initialize(handlers : Array(Raze::Handler), &block : HTTP::Server::Context -> (String|Nil))
     @middlewares = handlers
@@ -29,6 +34,7 @@ class Raze::Stack
     @block = block
   end
 
+  # combines stacks of with matching paths
   def concat(stack : Raze::Stack)
     @middlewares.concat stack.middlewares
     @block = stack.block
@@ -38,20 +44,39 @@ class Raze::Stack
     true unless @block.nil?
   end
 
+  def tree?
+    true unless @tree.nil?
+  end
+
   # def initialize(middlewares : Array(Raze::Handler))
   #   @middlewares = middlewares
   #   @block = nil
   # end
 
-  def run(context : HTTP::Server::Context)
-    self.next(0, context)
+  def run(ctx : HTTP::Server::Context)
+    self.next(0, ctx)
   end
 
-  def next(index, context : HTTP::Server::Context)
+  def next(index, ctx : HTTP::Server::Context)
     if mw = @middlewares[index]?
-      mw.call context, ->{ self.next(index + 1, context) }
+      mw.call ctx, ->{ self.next(index + 1, ctx) }
     elsif block = @block
-      block.call(context)
+      block.call(ctx)
+    elsif _tree = tree
+      # find and run the sub tree
+      find_result = _tree.find( radix_path(ctx.request.method, ctx.request.path) )
+      if find_result.found?
+        ctx.params = find_result.params
+        find_result.payload.as(Raze::Stack).run(ctx)
+      end
+    end
+  end
+
+  private def radix_path(method, path)
+    String.build do |str|
+      str << "/"
+      str << method.downcase
+      str << path
     end
   end
 end

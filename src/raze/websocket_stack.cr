@@ -2,6 +2,11 @@ class Raze::WebSocketStack
   getter middlewares
   getter block
 
+  # A sub tree is used in case this stack is indexed using a wildcard
+  # For example, if there is one stack at the path "/hel**" and another at the
+  # path "/hello", the latter would be in the subtree of the first
+  property tree : Radix::Tree(Raze::WebSocketStack) | Nil = nil
+
   def initialize(handlers : Array(Raze::WebSocketHandler), &block : HTTP::WebSocket, HTTP::Server::Context -> Void)
     @middlewares = handlers
     @block = block
@@ -52,6 +57,20 @@ class Raze::WebSocketStack
       mw.call ctx, ->{ self.next(index + 1, ws, ctx) }
     elsif block = @block
       block.call(ws, ctx)
+    elsif _tree = tree
+      # find and run the sub tree
+      find_result = _tree.find( radix_path(ctx.request.path) )
+      if find_result.found?
+        ctx.params = find_result.params
+        find_result.payload.as(Raze::WebSocketStack).run(ws, ctx)
+      end
+    end
+  end
+
+  private def radix_path(path)
+    String.build do |str|
+      str << "/WS"
+      str << path
     end
   end
 end

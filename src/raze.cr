@@ -15,7 +15,7 @@ module Raze
     config.global_handlers << Raze::ServerHandler::INSTANCE
 
     unless Raze.config.error_handlers.has_key?(404)
-      Raze.error 404 do |ctx|
+      error 404 do |ctx|
         unless ctx.response.headers.has_key?("Content-Type")
           ctx.response.content_type = "text/html"
         end
@@ -25,7 +25,7 @@ module Raze
     end
 
     unless Raze.config.error_handlers.has_key?(500)
-      Raze.error 500 do |ctx, ex|
+      error 500 do |ctx, ex|
         unless ctx.response.headers.has_key?("Content-Type")
           ctx.response.content_type = "text/html"
         end
@@ -40,21 +40,21 @@ module Raze
   end
 end
 
-# # class Authenticator1 < Raze::Handler
-# #   def call(context, stack)
-# #     context.response.puts "Access Granted. (1)"
-# #     puts "Authenticator 1"
-# #     stack.call
-# #   end
-# # end
+# class Authenticator1 < Raze::Handler
+#   def call(context, stack)
+#     context.response.puts "Access Granted. (1)"
+#     puts "Authenticator 1"
+#     stack.call
+#   end
+# end
 
-# # class Authenticator2 < Raze::Handler
-# #   def call(context, stack)
-# #     context.response.puts "Access Granted. (2)"
-# #     puts "Authenticator 2"
-# #     stack.call
-# #   end
-# # end
+# class Authenticator2 < Raze::Handler
+#   def call(context, stack)
+#     context.response.puts "Access Granted. (2)"
+#     puts "Authenticator 2"
+#     stack.call
+#   end
+# end
 
 # class Logger
 #   include HTTP::Handler
@@ -93,14 +93,13 @@ end
 # # auth1 = Authenticator1.new
 # # auth2 = Authenticator2.new
 
-# Raze.get "/hello" do
-#   "Hello, world!"
-# end
+# Raze.get "/hello", Authenticator1.new
+
+# Raze.get "/hello/:name", Authenticator1.new 
+# Raze.get "/hello/sam", Authenticator2.new
 
 # Raze.get "/hello/:name" do |context|
-#   puts "raw query: #{context.request.query}"
-#   puts "query params: #{context.query}"
-#   "yee, #{context.params["bad_name"]}"
+#   "yee, #{context.params["name"]}"
 # end
 
 # # Raze.get "/hello/world", [auth2, Raze::Handler.new] do |context|
@@ -121,62 +120,89 @@ end
 #   "Yeezy"
 # end
 
-# class WebSocketAuthenticator < Raze::WebSocketHandler
-#   def call(ctx, done)
-#     puts "authenticating..."
-#     done.call
-#   end
-# end
+class WebSocketAuthenticator < Raze::WebSocketHandler
+  def call(ctx, done)
+    puts "authenticating..."
+    done.call
+  end
+end
 
-# Raze.ws "/yee**", WebSocketAuthenticator.new
 
-# Raze.ws "/yeezy/:room", WebSocketAuthenticator.new
-# # do |sock, ctx|
-# #   sock.send("connected to yeezy room: #{ctx.params["room"]}")
-# #   Raze.ws_channel("yeezy").add sock
-
-# #   # Create a user id for this websocket connection
-# #   user_id = "user:#{Raze.ws_channel("yeezy").size}"
-
-# #   # Optional: This will print how many sockets are connected to each channel
-# #   Raze::WebSocketChannels::INSTANCE.channels.each do|chan_name, chan|
-# #     puts "#{chan_name} has #{chan.size} connections"
-# #   end
-# # end
-
-# Raze.ws "/yee/boi" do |sock, ctx|
-#   sock.send("connected to yeeboi")
-
-#   # Add this socket to a channel for easy "broadcast" to a group of sockets.
-#   # Adding to a channel called "yeeboi". A channel it is created if it doesn't exist.
-#   Raze.ws_channel("yeeboi").add sock
+# do |sock, ctx|
+#   sock.send("connected to yeezy room: #{ctx.params["room"]}")
+#   Raze.ws_channel("yeezy").add sock
 
 #   # Create a user id for this websocket connection
-#   user_id = "user:#{Raze.ws_channel("yeeboi").size}"
+#   user_id = "user:#{Raze.ws_channel("yeezy").size}"
 
 #   # Optional: This will print how many sockets are connected to each channel
 #   Raze::WebSocketChannels::INSTANCE.channels.each do|chan_name, chan|
 #     puts "#{chan_name} has #{chan.size} connections"
 #   end
-
-#   sock.on_message do |msg|
-#     # broadcast a json message to each websocket in the channel
-#     Raze.ws_channel("yeeboi").broadcast({"user_id" => user_id, "msg" => msg}.to_json)
-#   end
-
-#   sock.on_close do
-#     # remove the socket from the channel, and broadcast the user has left
-#     Raze.ws_channel("yeeboi").remove sock do |channel|
-#       channel.broadcast({"user_id" => user_id, "msg" => "user disconnected"}.to_json)
-#     end
-
-#     # Optional: print how many sockets are connected to each channel
-#     Raze::WebSocketChannels::INSTANCE.channels.each do|chan_name, chan|
-#       puts "#{chan_name} has #{chan.size} connections"
-#     end
-#   end
 # end
 
+ws "/yee/boi" do |sock, ctx|
+  sock.send("connected to yeeboi")
+
+  # Add this socket to a channel for easy "broadcast" to a group of sockets.
+  # Adding to a channel called "yeeboi". A channel it is created if it doesn't exist.
+  Raze.ws_channel("yeeboi").add sock
+
+  # Create a user id for this websocket connection
+  user_id = "user:#{Raze.ws_channel("yeeboi").size}"
+
+  # Optional: This will print how many sockets are connected to each channel
+  Raze::WebSocketChannels::INSTANCE.channels.each do|chan_name, chan|
+    puts "#{chan_name} has #{chan.size} connections"
+  end
+
+  sock.on_message do |msg|
+    # broadcast a json message to each websocket in the channel
+    Raze.ws_channel("yeeboi").broadcast({"user_id" => user_id, "msg" => msg}.to_json)
+  end
+
+  sock.on_close do
+    # remove the socket from the channel, and broadcast the user has left
+    Raze.ws_channel("yeeboi").remove sock do |channel|
+      channel.broadcast({"user_id" => user_id, "msg" => "user disconnected"}.to_json)
+    end
+
+    # Optional: print how many sockets are connected to each channel
+    Raze::WebSocketChannels::INSTANCE.channels.each do|chan_name, chan|
+      puts "#{chan_name} has #{chan.size} connections"
+    end
+  end
+end
+
+
+class Authenticator < Raze::Handler
+  def call(context, done)
+    puts "Authenticate here..."
+    done.call
+  end
+end
+
+
+class DDoSBlocker < Raze::Handler
+  def call(context, done)
+    puts "Prevent DDoS attack here..."
+    done.call
+  end
+end
+
+class UserFetcher < Raze::Handler
+  def call(context, done)
+    # Fetch user record from DB here...
+    context.locals["user_name"] = "Sam"
+    done.call
+  end
+end
+
+get "/api/**", [Authenticator.new, DDoSBlocker.new]
+
+get "/api/user/:user_id", UserFetcher.new do |ctx|
+  "hello, #{ctx.locals["user_name"]}!"
+end
 # Raze.post "/yee/boi" do |context|
 #   puts "headers: #{context.request.headers}"
 #   puts "raw body: #{context.request.body}"
@@ -196,4 +222,4 @@ end
 
 # # Raze.get "/sam", [auth1, Raze::Handler.new]
 
-# Raze.run
+Raze.run

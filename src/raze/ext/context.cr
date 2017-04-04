@@ -7,7 +7,8 @@ class HTTP::Server
     getter query = {} of String => StoreTypes
     getter json = {} of String => JsonTypes
     getter body = HTTP::Params.new({} of String => Array(String))
-
+    getter locals = {} of String => StoreTypes
+    
     def params=(parameters)
       parameters.each do |key, val|
         @params[key] = URI.unescape(val)
