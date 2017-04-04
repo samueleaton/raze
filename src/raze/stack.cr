@@ -1,18 +1,17 @@
 class Raze::Stack
   getter middlewares
   getter block
-  
   # A sub tree is used in case this stack is indexed using a wildcard
   # For example, if there is one stack at the path "/hel**" and another at the
   # path "/hello", the latter would be in the subtree of the first
   property tree : Radix::Tree(Raze::Stack) | Nil = nil
 
-  def initialize(handlers : Array(Raze::Handler), &block : HTTP::Server::Context -> (String|Nil))
+  def initialize(handlers : Array(Raze::Handler), &block : HTTP::Server::Context -> (String | Nil))
     @middlewares = handlers
     @block = block
   end
 
-  def initialize(*handlers, &block : HTTP::Server::Context -> (String|Nil))
+  def initialize(*handlers, &block : HTTP::Server::Context -> (String | Nil))
     @middlewares = [] of Raze::Handler
     handlers.each { |mw| @middlewares << mw }
     @block = block
@@ -29,7 +28,7 @@ class Raze::Stack
     @block = nil
   end
 
-  def initialize(&block : HTTP::Server::Context -> (String|Nil))
+  def initialize(&block : HTTP::Server::Context -> (String | Nil))
     @middlewares = [] of Raze::Handler
     @block = block
   end
@@ -64,7 +63,7 @@ class Raze::Stack
       block.call(ctx)
     elsif _tree = tree
       # find and run the sub tree
-      find_result = _tree.find( radix_path(ctx.request.method, ctx.request.path) )
+      find_result = _tree.find(radix_path(ctx.request.method, ctx.request.path))
       if find_result.found?
         ctx.params = find_result.params
         find_result.payload.as(Raze::Stack).run(ctx)

@@ -1,5 +1,4 @@
-
-HTTP_METHODS_OPTIONS   = %w(get post put patch delete options)
+HTTP_METHODS_OPTIONS = %w(get post put patch delete options)
 
 {% for method in HTTP_METHODS_OPTIONS %}
 
@@ -60,7 +59,6 @@ HTTP_METHODS_OPTIONS   = %w(get post put patch delete options)
   end
 
 {% end %}
-
 
 def ws(path, &block : HTTP::WebSocket, HTTP::Server::Context -> Void)
   raise "websocket path \"#{path}\" must start with a \"/\"" unless path.starts_with? "/"

@@ -9,9 +9,9 @@ class Raze::WebSocketChannel
   def add(sock)
     websockets << sock
   end
-  
+
   def remove(sock : HTTP::WebSocket)
-    websockets.reject! {|ws| ws.object_id == sock.object_id }
+    websockets.reject! { |ws| ws.object_id == sock.object_id }
     Raze::WebSocketChannels::INSTANCE.channels.delete(@channel_name) if websockets.size <= 0
   end
 

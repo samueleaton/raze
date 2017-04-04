@@ -83,8 +83,6 @@ end
 # #   end
 # # end
 
-
-
 # # Raze.get "/user", [Authenticator1.new, Raze::Handler.new, Raze::Handler.new] do |context|
 # #   # puts "end of the road"
 # #   "/user"
@@ -95,7 +93,7 @@ end
 
 # Raze.get "/hello", Authenticator1.new
 
-# Raze.get "/hello/:name", Authenticator1.new 
+# Raze.get "/hello/:name", Authenticator1.new
 # Raze.get "/hello/sam", Authenticator2.new
 
 # Raze.get "/hello/:name" do |context|
@@ -105,7 +103,6 @@ end
 # # Raze.get "/hello/world", [auth2, Raze::Handler.new] do |context|
 # #   "Hello, world!"
 # # end
-
 
 # # Raze.get "/hello", [Authenticator1.new.as(Raze::Handler), Raze::Handler.new] do |context|
 # #   "kewl"
@@ -126,7 +123,6 @@ class WebSocketAuthenticator < Raze::WebSocketHandler
     done.call
   end
 end
-
 
 # do |sock, ctx|
 #   sock.send("connected to yeezy room: #{ctx.params["room"]}")
@@ -152,7 +148,7 @@ ws "/yee/boi" do |sock, ctx|
   user_id = "user:#{Raze.ws_channel("yeeboi").size}"
 
   # Optional: This will print how many sockets are connected to each channel
-  Raze::WebSocketChannels::INSTANCE.channels.each do|chan_name, chan|
+  Raze::WebSocketChannels::INSTANCE.channels.each do |chan_name, chan|
     puts "#{chan_name} has #{chan.size} connections"
   end
 
@@ -168,12 +164,11 @@ ws "/yee/boi" do |sock, ctx|
     end
 
     # Optional: print how many sockets are connected to each channel
-    Raze::WebSocketChannels::INSTANCE.channels.each do|chan_name, chan|
+    Raze::WebSocketChannels::INSTANCE.channels.each do |chan_name, chan|
       puts "#{chan_name} has #{chan.size} connections"
     end
   end
 end
-
 
 class Authenticator < Raze::Handler
   def call(context, done)
@@ -181,7 +176,6 @@ class Authenticator < Raze::Handler
     done.call
   end
 end
-
 
 class DDoSBlocker < Raze::Handler
   def call(context, done)

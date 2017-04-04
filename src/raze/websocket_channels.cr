@@ -10,7 +10,7 @@ module Raze
     if ws_channel = ws_channels[ws_channel_name]?
       ws_channel
     else
-       ws_channels[ws_channel_name] = Raze::WebSocketChannel.new ws_channel_name
+      ws_channels[ws_channel_name] = Raze::WebSocketChannel.new ws_channel_name
     end
   end
 end

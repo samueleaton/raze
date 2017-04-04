@@ -16,7 +16,6 @@ class Raze::WebSocketServerHandler < HTTP::WebSocketHandler
 
   def add_stack(path, stack)
     node = radix_path(path)
-    
     @radix_paths.each do |existing_path|
       # if you can:
       #   (1) add the new radix path to a tree by itself, and

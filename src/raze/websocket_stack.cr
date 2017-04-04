@@ -59,7 +59,7 @@ class Raze::WebSocketStack
       block.call(ws, ctx)
     elsif _tree = tree
       # find and run the sub tree
-      find_result = _tree.find( radix_path(ctx.request.path) )
+      find_result = _tree.find(radix_path(ctx.request.path))
       if find_result.found?
         ctx.params = find_result.params
         find_result.payload.as(Raze::WebSocketStack).run(ws, ctx)

@@ -13,7 +13,7 @@ class Raze::ServerHandler
   end
 
   # Adds a stack to the tree
-  # 
+  #
   # NOTE: This method is only ran at server startup so the extra internal sanity
   # checks will not affect server performance
   def add_stack(method, path, stack)
@@ -45,11 +45,11 @@ class Raze::ServerHandler
         sub_tree = existing_stack.tree.as(Radix::Tree(Raze::Stack))
         # add stack to this sub tree
         sub_tree.add node, stack
-        sub_tree.add(radix_path("HEAD", path), Raze::Stack.new() {|ctx| ""}) if method == "GET"
+        sub_tree.add(radix_path("HEAD", path), Raze::Stack.new() { |ctx| "" }) if method == "GET"
       end
     else
       add_to_tree(node, stack)
-      add_to_tree(radix_path("HEAD", path), Raze::Stack.new() {|ctx| ""}) if method == "GET"
+      add_to_tree(radix_path("HEAD", path), Raze::Stack.new() { |ctx| "" }) if method == "GET"
     end
   end
 

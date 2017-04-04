@@ -31,9 +31,9 @@ module Raze::Helpers
     minsize = 860 # http://webmasters.stackexchange.com/questions/31750/what-is-recommended-minimum-object-size-for-gzip-performance-benefits
 
     headers.includes_word?("Accept-Encoding", compression_type) &&
-    Raze.config.static_config["gzip"] == true &&
-    file_size > minsize &&
-    Raze::Utils.zip_types(file_ext)
+      Raze.config.static_config["gzip"] == true &&
+      file_size > minsize &&
+      Raze::Utils.zip_types(file_ext)
   end
 
   def self.compress_file(ctx, compression_type, file)
