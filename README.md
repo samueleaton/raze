@@ -17,7 +17,7 @@ dependencies:
 ```ruby
 require "raze"
 
-Raze.get "/hello" do |ctx|
+get "/hello" do |ctx|
   "hello, world!"
 end
 
@@ -54,16 +54,15 @@ class UserFetcher < Raze::Handler
 end
 
 # Define routes, attach middlewares
-Raze.get "/api/**", [Authenticator.new, DDoSBlocker.new]
+get "/api/**", [Authenticator.new, DDoSBlocker.new]
 
-Raze.get "/api/user/:user_id", UserFetcher.new do |ctx|
+get "/api/user/:user_id", UserFetcher.new do |ctx|
   "hello, #{ctx.locals["user_name"]}!"
 end
 
 Raze.run
 ```
 
-TODO: Write usage instructions here
 
 ## Development
 
