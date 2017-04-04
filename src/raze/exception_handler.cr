@@ -8,10 +8,8 @@ class Raze::ExceptionHandler
     rescue ex : Raze::Exceptions::RouteNotFound
       call_exception_with_status_code(context, ex, 404)
     rescue ex : Raze::Exceptions::CustomException
-      puts "chk 1"
       call_exception_with_status_code(context, ex, context.response.status_code)
     rescue ex : Exception
-      puts "chk 2"
       # log("Exception: #{ex.inspect_with_backtrace}")
       call_exception_with_status_code(context, ex, 500)
     end

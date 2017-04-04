@@ -137,33 +137,41 @@ end
 #   end
 # end
 
-# ws "/yee/boi" do |sock, ctx|
-#   sock.send("connected to yeeboi")
 
-#   # Add this socket to a channel for easy "broadcast" to a group of sockets.
-#   # Adding to a channel called "yeeboi". A channel it is created if it doesn't exist.
-#   Raze.ws_channel("yeeboi").add sock
+# ws "/room/:room_id" do |ws, ctx|
+#   room_id = ctx.params["room_id"].as(String)
+#   channel_id = "room:#{room_id}"
+
+#   ws.send("connected to room #{room_id}")
+
+#   Raze.ws_channel(channel_id).add ws
 
 #   # Create a user id for this websocket connection
-#   user_id = "user:#{Raze.ws_channel("yeeboi").size}"
+#   user_id = "user:#{Raze.ws_channel(channel_id).size}"
 
 #   # Optional: This will print how many sockets are connected to each channel
+#   puts "\n=="
 #   Raze::WebSocketChannels::INSTANCE.channels.each do |chan_name, chan|
 #     puts "#{chan_name} has #{chan.size} connections"
 #   end
 
-#   sock.on_message do |msg|
+#   ws.on_message do |msg|
 #     # broadcast a json message to each websocket in the channel
-#     Raze.ws_channel("yeeboi").broadcast({"user_id" => user_id, "msg" => msg}.to_json)
+#     Raze.ws_channel(channel_id).broadcast(
+#       {"user_id" => user_id, "msg" => msg, "room_id" => room_id}
+#     )
 #   end
 
-#   sock.on_close do
+#   ws.on_close do
 #     # remove the socket from the channel, and broadcast the user has left
-#     Raze.ws_channel("yeeboi").remove sock do |channel|
-#       channel.broadcast({"user_id" => user_id, "msg" => "user disconnected"}.to_json)
+#     Raze.ws_channel(channel_id).remove ws do |channel|
+#       channel.broadcast(
+#         {"user_id" => user_id, "msg" => "user disconnected", "room_id" => room_id}
+#       )
 #     end
 
 #     # Optional: print how many sockets are connected to each channel
+#     puts "\n=="
 #     Raze::WebSocketChannels::INSTANCE.channels.each do |chan_name, chan|
 #       puts "#{chan_name} has #{chan.size} connections"
 #     end

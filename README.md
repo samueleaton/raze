@@ -99,6 +99,7 @@ Note: File upload is not part of the scope of this project. This is a routing/mi
 - [x] store paths that come after matching paths with "*" or ":" in sub trees
 - [x] remove the `Raze.all` method
 - [ ] have good examples in README
+- [ ] don't fail if static directory doesn't exist
 
 ### Future Plans:
 
