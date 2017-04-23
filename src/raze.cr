@@ -13,6 +13,7 @@ module Raze
     config.global_handlers << Raze::ExceptionHandler::INSTANCE
     config.global_handlers << Raze::WebSocketServerHandler::INSTANCE
     config.global_handlers << Raze::ServerHandler::INSTANCE
+    config.setup
 
     unless Raze.config.error_handlers.has_key?(404)
       error 404 do |ctx|
@@ -137,9 +138,8 @@ end
 #   end
 # end
 
-
 # ws "/room/:room_id" do |ws, ctx|
-#   room_id = ctx.params["room_id"].as(String)
+#   room_id = ctx.params["room_id"]
 #   channel_id = "room:#{room_id}"
 
 #   ws.send("connected to room #{room_id}")
@@ -149,16 +149,10 @@ end
 #   # Create a user id for this websocket connection
 #   user_id = "user:#{Raze.ws_channel(channel_id).size}"
 
-#   # Optional: This will print how many sockets are connected to each channel
-#   puts "\n=="
-#   Raze::WebSocketChannels::INSTANCE.channels.each do |chan_name, chan|
-#     puts "#{chan_name} has #{chan.size} connections"
-#   end
-
 #   ws.on_message do |msg|
 #     # broadcast a json message to each websocket in the channel
 #     Raze.ws_channel(channel_id).broadcast(
-#       {"user_id" => user_id, "msg" => msg, "room_id" => room_id}
+#       {"user_id" => user_id, "msg" => msg, "room_id" => room_id}.to_json
 #     )
 #   end
 
@@ -166,14 +160,8 @@ end
 #     # remove the socket from the channel, and broadcast the user has left
 #     Raze.ws_channel(channel_id).remove ws do |channel|
 #       channel.broadcast(
-#         {"user_id" => user_id, "msg" => "user disconnected", "room_id" => room_id}
+#         {"user_id" => user_id, "msg" => "user disconnected", "room_id" => room_id}.to_json
 #       )
-#     end
-
-#     # Optional: print how many sockets are connected to each channel
-#     puts "\n=="
-#     Raze::WebSocketChannels::INSTANCE.channels.each do |chan_name, chan|
-#       puts "#{chan_name} has #{chan.size} connections"
 #     end
 #   end
 # end
@@ -223,5 +211,84 @@ end
 # # end
 
 # # Raze.get "/sam", [auth1, Raze::Handler.new]
+# class DDoS_Blocker < Raze::Handler
+#   def call(ctx, done)
+#     puts "DDoS_Blocker"
+#     done.call
+#   end
+# end
+
+# class UserAuthenticator < Raze::Handler
+#   def call(ctx, done)
+#     puts "UserAuthenticator"
+#     done.call
+#   end
+# end
+
+# class PlanValidator < Raze::Handler
+#   def call(ctx, done)
+#     puts "PlanValidator"
+#     done.call
+#   end
+# end
+
+# class PaymentValidator < Raze::Handler
+#   def call(ctx, done)
+#     puts "PaymentValidator"
+#     done.call
+#   end
+# end
+
+# class PlanPurchaser < Raze::Handler
+#   def call(ctx, done)
+#     puts "PlanPurchaser"
+#     done.call
+#   end
+# end
+
+# class ConfirmationEmailer < Raze::Handler
+#   def initialize(@purchase_type : String)
+#   end
+
+#   def call(ctx, done)
+#     puts "purchasing #{@purchase_type}: #{ctx.params["plan_id"]}"
+#     done.call
+#   end
+# end
+
+# plan_purchase_middlewares = {
+#   PlanValidator.new,
+#   PaymentValidator.new,
+#   PlanPurchaser.new,
+#   ConfirmationEmailer.new("plan"),
+# }
+
+# Notice how the above ConfirmationEmailer constructor
+# expects an arg, which allows us to reuse the same
+# middleware for purchasing plans or items
+
+# can take an array of middlewares
+# these will run before all other routes starting with "/api"
+
+# get "/api*", [DDoS_Blocker.new, UserAuthenticator.new]
+# get "/api/purchase/plan/:plan_id", *plan_purchase_middlewares do |ctx|
+#   "purchased plan: #{ctx.params["plan_id"]}"
+# end
+
+# # get "/user/:user" {|ctx| "sam"}
+# get "/user/sam" do |ctx|
+#   puts "ctx.request.query_params: #{ctx.request.query_params["name"]}"
+#   puts "ctx.request.query: #{ctx.request.query}"
+#   puts "path: #{ctx.request.path}"
+#   "sam"
+# end
+
+# get "/" do |ctx|
+#   ctx.response.print "hello"
+#   spawn do
+#     sleep 1
+#   end
+#   nil
+# end
 
 # Raze.run

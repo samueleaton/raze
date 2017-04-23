@@ -3,8 +3,15 @@ class Raze::StaticFileIndexer
 
   property static_files = {} of String => String
 
-  def index_files(directory)
+  def index_files(directory = "")
     base_dir = Raze.config.static_dir
+    dir = "#{base_dir}#{directory}"
+
+    unless Dir.exists? dir
+      puts "Static directory not found: #{dir}" if Raze.config.logging
+      return
+    end
+
     Dir.foreach "#{base_dir}#{directory}" do |f|
       next if f == "." || f == ".."
       if File.directory? "#{base_dir}#{directory}/#{f}"
@@ -27,6 +34,3 @@ module Raze
     Raze::StaticFileIndexer::INSTANCE
   end
 end
-
-# TODO: move this to config setup method
-Raze.static_file_indexer.index_files ""

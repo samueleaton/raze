@@ -2,7 +2,7 @@ class Raze::WebSocketServerHandler < HTTP::WebSocketHandler
   INSTANCE = new do |sock, ctx|
     lookup_result = Raze::WebSocketServerHandler::INSTANCE.lookup_route(ctx.request.path)
     ctx.params = lookup_result.params
-    ctx.query = ctx.request.query
+    # ctx.query = ctx.request.query
 
     stack = lookup_result.payload.as(Raze::WebSocketStack)
     content = stack.run(sock, ctx)

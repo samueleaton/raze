@@ -100,6 +100,10 @@ Note: File upload is not part of the scope of this project. This is a routing/mi
 - [x] remove the `Raze.all` method
 - [ ] have good examples in README
 - [ ] don't fail if static directory doesn't exist
+- [x] should return a 404 if trying to progress to next middleware or block that doesn't exist
+- [ ] make accessing ctx.params and ctx.query lazy for better performance?
+- [ ] Fix the routing block so that the return type is void or not inferred
+
 
 ### Future Plans:
 
@@ -112,3 +116,5 @@ Note: File upload is not part of the scope of this project. This is a routing/mi
 - [ ] Create a "good" website
 - [ ] enable/disable features in dev and prod
 - [ ] Create a very basic logging middleware and show examples for how to make a more advanced one.
+- [ ] Create a raze-ws js library for easy websockets
+- [ ] create a cli tool for creatig new projects (with webpack and stuff)

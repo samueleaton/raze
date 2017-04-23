@@ -8,6 +8,8 @@ class Raze::WebSocketChannel
 
   def add(sock)
     websockets << sock unless websockets.find { |ws| ws.object_id == sock.object_id }
+    sock.on_close { remove sock }
+    self
   end
 
   def remove(sock : HTTP::WebSocket)

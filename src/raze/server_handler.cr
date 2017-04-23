@@ -5,9 +5,15 @@ class Raze::ServerHandler
   include HTTP::Handler
   INSTANCE = new
 
+  # the radix tree of defined paths and the associated stacks
   getter tree
 
   def initialize
+    @tree = Radix::Tree(Raze::Stack).new
+    @radix_paths = [] of String
+  end
+
+  def clear_tree
     @tree = Radix::Tree(Raze::Stack).new
     @radix_paths = [] of String
   end
@@ -37,15 +43,13 @@ class Raze::ServerHandler
       # check if stack has an ending block
       existing_stack = lookup_result.payload.as(Raze::Stack)
       raise "There is already an existing block for #{method.upcase} #{path}." if existing_stack.block?
+
+      # if same key (ie. method and path) then combine stacks
       if lookup_result.key == node
         existing_stack.concat stack
+        # else, there is some globbing, so append stack to to existing stack's tree
       else
-        # add tree to the existing stack because there is some globbing going on
-        existing_stack.tree = Radix::Tree(Raze::Stack).new unless existing_stack.tree?
-        sub_tree = existing_stack.tree.as(Radix::Tree(Raze::Stack))
-        # add stack to this sub tree
-        sub_tree.add node, stack
-        sub_tree.add(radix_path("HEAD", path), Raze::Stack.new() { |ctx| "" }) if method == "GET"
+        existing_stack.add_sub_tree stack, node, method, path
       end
     else
       add_to_tree(node, stack)
@@ -58,15 +62,21 @@ class Raze::ServerHandler
   # end
 
   def call(ctx)
+    handle_request ctx
+  end
+
+  private def handle_request(ctx)
     # check if there is a stack in radix that matches path
     node = radix_path ctx.request.method, ctx.request.path
     lookup_result = @tree.find node
     raise Raze::Exceptions::RouteNotFound.new(ctx) unless lookup_result.found?
 
+    # set context params
     ctx.params = lookup_result.params
-    ctx.query = ctx.request.query
+    # ctx.query = ctx.request.query
     ctx.parse_body if ctx.request.body
 
+    # run the stack
     stack = lookup_result.payload.as(Raze::Stack)
     content = stack.run ctx
   ensure

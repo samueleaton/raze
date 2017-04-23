@@ -11,6 +11,11 @@ class Raze::Stack
     @block = block
   end
 
+  def initialize(handlers : Array(Raze::Handler))
+    @middlewares = handlers
+    @block = nil
+  end
+
   def initialize(*handlers, &block : HTTP::Server::Context -> (String | Nil))
     @middlewares = [] of Raze::Handler
     handlers.each { |mw| @middlewares << mw }
@@ -20,11 +25,6 @@ class Raze::Stack
   def initialize(*handlers)
     @middlewares = [] of Raze::Handler
     handlers.each { |mw| @middlewares << mw }
-    @block = nil
-  end
-
-  def initialize(handlers : Array(Raze::Handler))
-    @middlewares = handlers
     @block = nil
   end
 
@@ -67,8 +67,19 @@ class Raze::Stack
       if find_result.found?
         ctx.params = find_result.params
         find_result.payload.as(Raze::Stack).run(ctx)
+      else
+        raise Raze::Exceptions::RouteNotFound.new(ctx)
       end
     end
+  end
+
+  def add_sub_tree(stack, node, method, path)
+    # add tree to the existing stack because there is some globbing going on
+    @tree = Radix::Tree(Raze::Stack).new unless tree?
+    sub_tree = @tree.as(Radix::Tree(Raze::Stack))
+    # add stack to this sub tree
+    sub_tree.add node, stack
+    sub_tree.add(radix_path("HEAD", path), Raze::Stack.new() { |ctx| "" }) if method == "GET"
   end
 
   private def radix_path(method, path)
