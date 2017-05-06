@@ -54,7 +54,7 @@ class Raze::WebSocketStack
 
   def next(index, ws : HTTP::WebSocket, ctx : HTTP::Server::Context)
     if mw = @middlewares[index]?
-      mw.call ctx, ->{ self.next(index + 1, ws, ctx) }
+      mw.call ws, ctx, ->{ self.next(index + 1, ws, ctx) }
     elsif block = @block
       block.call(ws, ctx)
     elsif _tree = tree

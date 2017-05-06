@@ -1,5 +1,5 @@
 class Raze::WebSocketHandler
-  def call(context, done)
+  def call(ws, context, done)
     done.call
   end
 end
