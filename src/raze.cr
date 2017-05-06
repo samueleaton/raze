@@ -38,6 +38,15 @@ module Raze
     end
 
     server = HTTP::Server.new(config.host, config.port, config.global_handlers)
+
+    # tls/ssl if a key and a cert are added to config
+    if config.tls_key && config.tls_cert
+      tls_context = OpenSSL::SSL::Context::Server.new
+      tls_context.private_key = config.tls_key.as(String)
+      tls_context.certificate_chain = config.tls_cert.as(String)
+      server.tls = tls_context
+    end
+
     puts "\nlistening at localhost:" + config.port.to_s if config.logging
     server.listen
   end

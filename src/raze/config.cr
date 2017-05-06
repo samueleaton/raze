@@ -12,6 +12,8 @@ class Raze::Config
   property logging = true
   property global_handlers = [] of HTTP::Handler
   property error_handlers = {} of Int32 => HTTP::Server::Context, Exception -> String
+  property tls_key : String | Nil = nil
+  property tls_cert : String | Nil = nil
 
   def setup
     Raze.static_file_indexer.index_files if static_indexing
