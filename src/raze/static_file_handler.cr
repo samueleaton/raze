@@ -3,6 +3,12 @@
 {% end %}
 
 class Raze::StaticFileHandler < HTTP::StaticFileHandler
+  INSTANCE = new(Raze.config.static_dir)
+
+  def public_dir=(dir)
+    @public_dir = File.expand_path dir
+  end
+
   def call(ctx)
     return call_next(ctx) if ctx.request.path.not_nil! == "/"
 
@@ -18,31 +24,58 @@ class Raze::StaticFileHandler < HTTP::StaticFileHandler
 
     request_path = URI.unescape(ctx.request.path.not_nil!).rstrip "/"
 
-    file_or_dir = Raze.static_file_indexer.static_files[request_path]?
-    return call_next(ctx) unless file_or_dir
+    if Raze.config.dynamic_static_paths.size > 0
+      if Raze.config.dynamic_static_paths.any? {|path| request_path.starts_with? path}
+        resource_path = String.build do |str|
+          str << @public_dir
+          str << request_path
+        end
 
-    file_path = String.build do |str|
-      str << Raze.config.static_dir
+        return process_request(ctx, resource_path)
+      end
+    end
+
+    file_or_dir = nil
+    if Raze.config.static_indexing
+      file_or_dir = Raze.static_file_indexer.static_files[request_path]?
+
+      return call_next(ctx) unless file_or_dir
+    end
+    
+    resource_path = String.build do |str|
+      str << @public_dir
       str << request_path
     end
 
-    process_request(ctx, file_or_dir, request_path, file_path)
+    if file_or_dir
+      process_request(ctx, file_or_dir, request_path, resource_path)
+    else
+      process_request(ctx, resource_path)
+    end
   end
 
-  private def process_request(ctx, file_type, request_path, file_path)
+  private def process_request(ctx, file_type, request_path, resource_path)
     if file_type == "dir"
       ctx.response.content_type = "text/html"
-      directory_listing(ctx.response, request_path, file_path)
+      directory_listing(ctx.response, request_path, resource_path)
     elsif file_type == "file"
-      return if etag(ctx, file_path)
-      Raze::Helpers.send_file(ctx, file_path)
+      return if etag(ctx, resource_path)
+      Raze::Helpers.send_file(ctx, resource_path)
     else
       call_next(ctx)
     end
   end
 
-  private def etag(ctx, file_path)
-    etag = %{W/"#{File.lstat(file_path).mtime.epoch.to_s}"}
+  # dynamic-static directory
+  private def process_request(ctx, resource_path)
+    return if etag(ctx, resource_path)
+    Raze::Helpers.send_file(ctx, resource_path)
+  rescue
+    call_next(ctx)
+  end
+
+  private def etag(ctx, resource_path)
+    etag = %{W/"#{File.lstat(resource_path).mtime.epoch.to_s}"}
 
     headers = ctx.request.headers
     headers["ETag"] = etag
