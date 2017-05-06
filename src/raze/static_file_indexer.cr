@@ -16,7 +16,7 @@ class Raze::StaticFileIndexer
       next if f == "." || f == ".."
       if File.directory? "#{base_dir}#{directory}/#{f}"
         # only index directory itself if "dir_listing" is enabled
-        @static_files["#{directory}/#{f}"] = "dir" if Raze.config.static_config["dir_listing"]
+        @static_files["#{directory}/#{f}"] = "dir" if Raze.config.static_dir_listing
         index_files("#{directory}/#{f}")
       else
         @static_files["#{directory}/#{f}"] = "file"

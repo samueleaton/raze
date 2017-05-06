@@ -4,18 +4,17 @@ class Raze::Config
   property host = "0.0.0.0"
   property port = 7777
   property env = "development"
-  property static_config = {"dir_listing" => false, "gzip" => true}
+  property static_dir_listing = false
+  property compress = true
+  property static_indexing = true
   property static_dir = "./static"
+  property dynamic_static_paths = [] of String
   property logging = true
-  property always_rescue = true
   property global_handlers = [] of HTTP::Handler
   property error_handlers = {} of Int32 => HTTP::Server::Context, Exception -> String
 
-  # property error_handler = nil
-  # @server = uninitialized HTTP::Server
-
   def setup
-    Raze.static_file_indexer.index_files
+    Raze.static_file_indexer.index_files if static_indexing
   end
 end
 
