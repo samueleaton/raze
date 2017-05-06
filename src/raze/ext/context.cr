@@ -38,13 +38,26 @@ class HTTP::Server
       self.response.status_code = status
     end
 
-    # def query=(raw_query_string)
-    #   return unless raw_query_string && raw_query_string.size > 0
-    #   query_params = Raze::Utils.parse_params(raw_query_string)
-    #   query_params.each do |key, val|
-    #     @query[key] = URI.unescape(val)
-    #   end
-    # end
+    def halt(payload = "", status = 200)
+      self.response.status_code = status
+      self.response.print payload
+      self.response.close
+    end
+
+    def halt_json(payload = "", status = 200)
+      self.response.content_type = "application/json"
+      halt payload, status
+    end
+
+    def halt_html(payload = "", status = 200)
+      self.response.content_type = "text/html"
+      halt payload, status
+    end
+
+    def halt_plain(payload = "", status = 200)
+      self.response.content_type = "text/plain"
+      halt payload, status
+    end
 
     def parse_body
       return unless content_type = request.headers["Content-Type"]?
