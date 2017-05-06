@@ -11,3 +11,7 @@
 macro add_context_storage_type(type)
   {{ HTTP::Server::Context::STORE_MAPPINGS.push(type) }}
 end
+
+macro render(filename)
+  Kilt.render({{filename}})
+end
