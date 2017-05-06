@@ -39,12 +39,16 @@ def reset_config
   Raze.config.host = "0.0.0.0"
   Raze.config.port = 7777
   Raze.config.env = "development"
-  Raze.config.static_config = {"dir_listing" => false, "gzip" => true}
+  Raze.config.static_dir_listing = false
+  Raze.config.compress = true
+  Raze.config.static_indexing = true
   Raze.config.static_dir = "./static"
+  Raze.config.dynamic_static_paths = [] of String
   Raze.config.logging = true
-  Raze.config.always_rescue = true
   Raze.config.global_handlers = [] of HTTP::Handler
   Raze.config.error_handlers = {} of Int32 => HTTP::Server::Context, Exception -> String
+  Raze.config.tls_key = nil
+  Raze.config.tls_cert = nil
 end
 
 Spec.after_each do
