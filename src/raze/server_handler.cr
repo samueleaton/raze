@@ -82,7 +82,7 @@ class Raze::ServerHandler
   ensure
     if Raze.config.error_handlers.has_key?(ctx.response.status_code)
       raise Raze::Exceptions::CustomException.new(ctx)
-    elsif content.is_a?(String) && !ctx.response.closed?
+    elsif !ctx.response.closed? && content.is_a?(String)
       ctx.response.print content
     end
   end
