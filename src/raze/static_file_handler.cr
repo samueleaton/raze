@@ -25,7 +25,7 @@ class Raze::StaticFileHandler < HTTP::StaticFileHandler
     request_path = URI.unescape(ctx.request.path.not_nil!).rstrip "/"
 
     if Raze.config.dynamic_static_paths.size > 0
-      if Raze.config.dynamic_static_paths.any? {|path| request_path.starts_with? path}
+      if Raze.config.dynamic_static_paths.any? { |path| request_path.starts_with? path }
         resource_path = String.build do |str|
           str << @public_dir
           str << request_path
@@ -41,7 +41,6 @@ class Raze::StaticFileHandler < HTTP::StaticFileHandler
 
       return call_next(ctx) unless file_or_dir
     end
-    
     resource_path = String.build do |str|
       str << @public_dir
       str << request_path

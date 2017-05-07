@@ -6,7 +6,7 @@ class Raze::Stack
   # path "/hello", the latter would be in the subtree of the first
   property tree : Radix::Tree(Raze::Stack) | Nil = nil
 
-  def initialize(handlers : Array(Raze::Handler), &block : HTTP::Server::Context -> (HTTP::Server::Context| String| Int32| Int64 | Bool | Nil))
+  def initialize(handlers : Array(Raze::Handler), &block : HTTP::Server::Context -> (HTTP::Server::Context | String | Int32 | Int64 | Bool | Nil))
     @middlewares = handlers
     @block = block
   end
@@ -16,7 +16,7 @@ class Raze::Stack
     @block = nil
   end
 
-  def initialize(*handlers, &block : HTTP::Server::Context -> (HTTP::Server::Context| String| Int32| Int64 | Bool | Nil))
+  def initialize(*handlers, &block : HTTP::Server::Context -> (HTTP::Server::Context | String | Int32 | Int64 | Bool | Nil))
     @middlewares = [] of Raze::Handler
     handlers.each { |mw| @middlewares << mw }
     @block = block
@@ -28,7 +28,7 @@ class Raze::Stack
     @block = nil
   end
 
-  def initialize(&block : HTTP::Server::Context -> (HTTP::Server::Context| String| Int32| Int64 | Bool | Nil))
+  def initialize(&block : HTTP::Server::Context -> (HTTP::Server::Context | String | Int32 | Int64 | Bool | Nil))
     @middlewares = [] of Raze::Handler
     @block = block
   end
