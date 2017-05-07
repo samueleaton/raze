@@ -13,5 +13,6 @@ crystal: 0.21.1
 dependencies:
   radix:
     github: luislavena/radix
-
+  kilt:
+    github: jeromegn/kilt
 license: MIT

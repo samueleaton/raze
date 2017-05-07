@@ -1,3 +1,5 @@
+require "kilt"
+
 # halt_plain, halt_json, halt_html
 
 # Extends context storage with user defined types.
