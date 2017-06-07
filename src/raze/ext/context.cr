@@ -62,9 +62,9 @@ class HTTP::Server
     def parse_body
       return unless content_type = request.headers["Content-Type"]?
 
-      if content_type == "application/json"
+      if content_type.starts_with? "application/json"
         parse_json_body
-      elsif content_type == "application/x-www-form-urlencoded"
+      elsif content_type.starts_with? "application/x-www-form-urlencoded"
         @body = Raze::Utils.parse_params request.body
       end
     end
