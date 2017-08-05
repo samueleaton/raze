@@ -73,8 +73,6 @@ class Raze::ServerHandler
 
     # set context params
     ctx.params = lookup_result.params
-    # ctx.query = ctx.request.query
-    ctx.parse_body if ctx.request.body
 
     # run the stack
     stack = lookup_result.payload.as(Raze::Stack)
