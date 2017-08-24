@@ -79,6 +79,31 @@ Raze.run
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create a new Pull Request
 
+### TODO
+
+####  Core
+
+- [ ] Be able to run a stack of middlewares before the static file handler
+- [ ] Remove all global scoping (e.g. `get "/"` -> `Raze.get "/"`)
+- [ ] Live reload functionality for development
+- [ ] Be able to define middlewares globally (for all routes)
+
+#### Middlewares
+
+- [ ] Urlencoded and JSON body parser
+- [ ] Multipart/form-data body parser
+- [ ] Static asset caching
+  - should take a cache time interval and be able to take a path match regex
+- [ ] Route caching
+  - be able to cache the response for a route for a predetermined time interval
+- [ ] Favicon caching
+- [ ] CORS response header
+- [ ] Access logger
+- [ ] Session tracking
+- [ ] Proxy middleware
+- [ ] Security Headers
+  - e.g. Node's [Helmet](https://www.npmjs.com/package/helmet)
+
 ## Contributors
 
-- [Sam Eaton](https://github.com/samueleaton) Sam Eaton - creator, maintainer
+- [Sam Eaton](https://github.com/samueleaton) - creator, maintainer
