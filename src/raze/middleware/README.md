@@ -1,12 +1,25 @@
 # Raze Core Middlewares
 
-### proxy
+## Raze::Proxy
 
-*Proxies the request to another endpoint*
+> *Proxies the request to another endpoint*
 
 This allows Raze to proxy to external servers and also function as a load balancer.
 
-`host : String | Array(String)` - The target(s) the the proxy should pass to.
+```ruby
+Raze::Proxy.new(
+  host : String | Array(String),
+  path : String,
+  lchop_proxy_path : String,
+  ignore_proxy_path : Bool,
+  headers : Hash(String, String),
+  timeout : Int32
+)
+```
+
+### Arguments
+
+**`host : String | Array(String)` - target(s) the the proxy should pass to.**
 
 ```ruby
 all "/yeezy/*" Raze::Proxy.new(
@@ -34,7 +47,7 @@ all "/yeezy/*" Raze::Proxy.new(
 #=> http://example.com/dank/yeezy/*
 ```
 
-**`lchop_proxy_path : String` - will chop a string from the beginning of the request path**
+**`lchop_proxy_path : String` - removes a substring from the beginning of the request path**
 
 In the following example, if Raze is running on `http://localhost:7777`, then a request to `http://localhost:7777/yeezy/dank` will proxy to `http://example.com/dank`
 
@@ -46,7 +59,7 @@ all "/yeezy/*" Raze::Proxy.new(
 # http://localhost:7777/yeezy/dank -> http://example.com/dank
 ```
 
-**`ignore_proxy_path : Bool` - will ignore request path and will not pass it to the target**
+**`ignore_proxy_path : Bool` - ignores request path and will not pass it to the target**
 
 In the following example, if Raze is running on `http://localhost:7777`, then a request to `http://localhost:7777/yeezy/dank` will proxy to `http://example.com/banana`
 
@@ -68,7 +81,7 @@ all "/yeezy/*" Raze::Proxy.new(
 )
 ```
 
-**`timeout : Int32 | Nil` - The number of seconds until timeout when trying to establish a connection and/or read the response body**
+**`timeout : Int32 | Nil` - number of seconds until timeout when trying to establish a connection and/or read the response body**
 
 ```ruby
 all "/yeezy/*" Raze::Proxy.new(
@@ -77,26 +90,27 @@ all "/yeezy/*" Raze::Proxy.new(
 )
 ```
 
-### body_parser
+## body_parser
+
+> *Parses `x-www-form-urlencoded` and `application/json` request bodies*
 
 [*In Development*]
 
-*Parses `x-www-form-urlencoded` and `application/json` request bodies*
 
-### static_cache
+## static_cache
 
-[*In Development*]
-
-*Caches static assets to decrease IO operations*
-
-### cors
+> *Caches static assets to decrease IO operations*
 
 [*In Development*]
 
-Enable/configures CORS
+## cors
 
-### secure_headers
+> *Enable/configures CORS*
 
 [*In Development*]
 
-Makes application more secure by responding with various HTTP headers
+## secure_headers
+
+> *Makes application more secure by responding with various HTTP headers*
+
+[*In Development*]
