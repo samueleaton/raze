@@ -12,7 +12,7 @@ class Raze::StaticFileIndexer
       return
     end
 
-    Dir.foreach "#{base_dir}#{directory}" do |f|
+    Dir.each_child "#{base_dir}#{directory}" do |f|
       next if f == "." || f == ".."
       if File.directory? "#{base_dir}#{directory}/#{f}"
         # only index directory itself if "dir_listing" is enabled

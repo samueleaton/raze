@@ -60,6 +60,46 @@ HTTP_METHODS_OPTIONS = %w(get post put patch delete options)
 
 {% end %}
 
+def all(path, &block : HTTP::Server::Context -> (HTTP::Server::Context | String | Int32 | Int64 | Bool | Nil))
+  raise "websocket path \"#{path}\" must start with a \"/\"" unless path.starts_with? "/"
+  stack = Raze::Stack.new(&block)
+  HTTP_METHODS_OPTIONS.each do |method|
+    Raze::ServerHandler::INSTANCE.add_stack method.upcase, path, stack
+  end
+end
+
+def all(path, middlewares : Array(Raze::Handler))
+  raise "websocket path \"#{path}\" must start with a \"/\"" unless path.starts_with? "/"
+  stack = Raze::Stack.new(middlewares)
+  HTTP_METHODS_OPTIONS.each do |method|
+    Raze::ServerHandler::INSTANCE.add_stack method.upcase, path, stack
+  end
+end
+
+def all(path, middlewares : Array(Raze::Handler), &block : HTTP::Server::Context -> (HTTP::Server::Context | String | Int32 | Int64 | Bool | Nil))
+  raise "websocket path \"#{path}\" must start with a \"/\"" unless path.starts_with? "/"
+  stack = Raze::Stack.new(middlewares, &block)
+  HTTP_METHODS_OPTIONS.each do |method|
+    Raze::ServerHandler::INSTANCE.add_stack method.upcase, path, stack
+  end
+end
+
+def all(path, *middlewares)
+  raise "websocket path \"#{path}\" must start with a \"/\"" unless path.starts_with? "/"
+  stack = Raze::Stack.new(*middlewares)
+  HTTP_METHODS_OPTIONS.each do |method|
+    Raze::ServerHandler::INSTANCE.add_stack method.upcase, path, stack
+  end
+end
+
+def all(path, *middlewares, &block : HTTP::Server::Context -> (HTTP::Server::Context | String | Int32 | Int64 | Bool | Nil))
+  raise "path \"#{path}\" must start with a \"/\"" unless path.starts_with? "/"
+  stack = Raze::Stack.new(*middlewares, &block)
+  HTTP_METHODS_OPTIONS.each do |method|
+    Raze::ServerHandler::INSTANCE.add_stack method.upcase, path, stack
+  end
+end
+
 def ws(path, &block : HTTP::WebSocket, HTTP::Server::Context -> Void)
   raise "websocket path \"#{path}\" must start with a \"/\"" unless path.starts_with? "/"
   stack = Raze::WebSocketStack.new(&block)
