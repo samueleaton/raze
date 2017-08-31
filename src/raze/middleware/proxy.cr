@@ -19,35 +19,13 @@ class Raze::Proxy < Raze::Handler
   end
 
   def initialize(host : Array(String), path = "", @lchop_proxy_path = "", @ignore_proxy_path = false, @headers = nil, @timeout = nil)
+    raise "Proxy hosts array cannot be empty" if host.empty?
     @target_hosts = host
     @target_path = path
     if timeout = @timeout
       timeout = nil
     end
     validate_props
-  end
-
-  # gets host amd updates the round-robin index
-  def get_host
-    host = @target_hosts[@next_target_host_index]
-
-    if @target_hosts[@next_target_host_index + 1]?
-      @next_target_host_index = @next_target_host_index + 1
-    else
-      @next_target_host_index = 0
-    end
-
-    host
-  end
-
-  def generate_path(req_path)
-    path = String.build do |io|
-      io << @target_path
-      unless @ignore_proxy_path
-        io << req_path.lchop @lchop_proxy_path
-      end
-    end
-    path.empty? ? "/" : path
   end
 
   def call(ctx, done)
@@ -64,12 +42,18 @@ class Raze::Proxy < Raze::Handler
       end
     end
 
-    # fire the request, get response
+    # TODO: if or when Crystal exposes the remote ip address, set the
+    # "X-Forwarded-For" header.
+    # https://github.com/crystal-lang/crystal/issues/453
+
     client = HTTP::Client.new(URI.parse get_host)
+
+    # set timeout if specified
     if timeout = @timeout
       client.connect_timeout = timeout.seconds
       client.read_timeout = timeout.seconds
     end
+
     begin
       response = client.exec(
         req_method, generate_path(req_path), req_headers, req_body
@@ -85,13 +69,38 @@ class Raze::Proxy < Raze::Handler
     end
   end
 
+  # gets host amd updates the round-robin index
+  private def get_host
+    host = @target_hosts[@next_target_host_index]
+
+    if @target_hosts[@next_target_host_index + 1]?
+      @next_target_host_index = @next_target_host_index + 1
+    else
+      @next_target_host_index = 0
+    end
+
+    host
+  end
+
+  private def generate_path(req_path)
+    path = String.build do |io|
+      io << @target_path
+      unless @ignore_proxy_path
+        io << req_path.lchop @lchop_proxy_path
+      end
+    end
+    path.empty? ? "/" : path
+  end
+
   private def validate_props
     @target_hosts.each do |host|
       uri = URI.parse host
       path = uri.path
       raise "Proxy hosts cannot contain a hash (##{uri.fragment})" if uri.fragment
-      raise "Proxy hosts cannot contain a path (#{uri.path}). Use the 'path' argument when initializing Raze::Proxy instead" if path && !path.empty?
       raise "Proxy hosts cannot contain a query string (?#{uri.query})" if uri.query
+      if path && !path.empty?
+        raise "Proxy hosts cannot contain a path (#{uri.path}). Use the 'path' argument when initializing Raze::Proxy instead"
+      end
     end
   end
 end
