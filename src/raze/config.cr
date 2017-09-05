@@ -3,7 +3,7 @@ class Raze::Config
 
   property host = "0.0.0.0"
   property port = 7777
-  porperty reuse_port = false
+  property reuse_port = false
   property env = "development"
   property static_dir_listing = false
   property compress = true
