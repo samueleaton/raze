@@ -48,6 +48,6 @@ module Raze
     end
 
     puts "\nlistening at localhost:" + config.port.to_s if config.logging
-    server.listen
+    server.listen(reuse_port: config.reuse_port)
   end
 end
