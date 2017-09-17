@@ -11,7 +11,7 @@ class Raze::WebSocketServerHandler < HTTP::WebSocketHandler
   @radix_paths = [] of String
 
   def initialize(&@proc : HTTP::WebSocket, HTTP::Server::Context -> Void)
-    @tree = Radix::Tree(Raze::WebSocketStack).new
+    @tree = Raze::Radix(Raze::WebSocketStack).new
   end
 
   def add_stack(path, stack)
@@ -21,7 +21,7 @@ class Raze::WebSocketServerHandler < HTTP::WebSocketHandler
       #   (1) add the new radix path to a tree by itself, and
       #   (2) look up an existing path and it matches the new radix path
       # then less specific path (e.g. with a "*" or ":") is being defined after a more specific path
-      temp_tree = Radix::Tree(String).new
+      temp_tree = ::Radix::Tree(String).new
       temp_tree.add node, node
       temp_result = temp_tree.find existing_path
       if temp_result.found? && temp_result.payload == node
@@ -38,8 +38,8 @@ class Raze::WebSocketServerHandler < HTTP::WebSocketHandler
         existing_stack.concat stack
       else
         # add tree to the existing stack because there is some globbing going on
-        existing_stack.tree = Radix::Tree(Raze::WebSocketStack).new unless existing_stack.tree
-        sub_tree = existing_stack.tree.as(Radix::Tree(Raze::WebSocketStack))
+        existing_stack.tree = Raze::Radix(Raze::WebSocketStack).new unless existing_stack.tree
+        sub_tree = existing_stack.tree.as(Raze::Radix(Raze::WebSocketStack))
         # add stack to this sub tree
         sub_tree.add node, stack
       end

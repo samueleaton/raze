@@ -4,7 +4,7 @@ class Raze::Stack
   # A sub tree is used in case this stack is indexed using a wildcard
   # For example, if there is one stack at the path "/hel**" and another at the
   # path "/hello", the latter would be in the subtree of the first
-  property tree : Radix::Tree(Raze::Stack) | Nil = nil
+  property tree : Raze::Radix(Raze::Stack) | Nil = nil
 
   def initialize(handlers : Array(Raze::Handler), &block : HTTP::Server::Context -> (HTTP::Server::Context | String | Int32 | Int64 | Bool | Nil))
     @middlewares = handlers
@@ -75,8 +75,8 @@ class Raze::Stack
 
   def add_sub_tree(stack, node, method, path)
     # add tree to the existing stack because there is some globbing going on
-    @tree = Radix::Tree(Raze::Stack).new unless tree?
-    sub_tree = @tree.as(Radix::Tree(Raze::Stack))
+    @tree = Raze::Radix(Raze::Stack).new unless tree?
+    sub_tree = @tree.as(Raze::Radix(Raze::Stack))
     # add stack to this sub tree
     sub_tree.add node, stack
     sub_tree.add(radix_path("HEAD", path), Raze::Stack.new() { |ctx| "" }) if method == "GET"
