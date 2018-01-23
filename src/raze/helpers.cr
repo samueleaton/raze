@@ -44,7 +44,7 @@ module Raze::Helpers
         IO.copy(file, deflate)
       end
     elsif compression_type == "deflate"
-      Flate::Writer.new(ctx.response) do |deflate|
+      Flate::Writer.open(ctx.response) do |deflate|
         IO.copy(file, deflate)
       end
     end

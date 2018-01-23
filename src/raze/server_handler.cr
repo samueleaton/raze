@@ -1,4 +1,5 @@
 require "./ext/context"
+require "./radix"
 
 # The main server handler.
 class Raze::ServerHandler
@@ -9,12 +10,12 @@ class Raze::ServerHandler
   getter tree
 
   def initialize
-    @tree = Radix::Tree(Raze::Stack).new
+    @tree = Raze::Radix(Raze::Stack).new
     @radix_paths = [] of String
   end
 
   def clear_tree
-    @tree = Radix::Tree(Raze::Stack).new
+    @tree = Raze::Radix(Raze::Stack).new
     @radix_paths = [] of String
   end
 
@@ -29,7 +30,7 @@ class Raze::ServerHandler
       #   (1) add the new radix path to a tree by itself, and
       #   (2) look up an existing path and it matches the new radix path
       # then less specific path (e.g. with a "*" or ":") is being defined after a more specific path
-      temp_tree = Radix::Tree(String).new
+      temp_tree = ::Radix::Tree(String).new
       temp_tree.add node, node
       temp_result = temp_tree.find existing_path
       if temp_result.found? && temp_result.payload == node

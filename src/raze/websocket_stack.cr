@@ -5,7 +5,7 @@ class Raze::WebSocketStack
   # A sub tree is used in case this stack is indexed using a wildcard
   # For example, if there is one stack at the path "/hel**" and another at the
   # path "/hello", the latter would be in the subtree of the first
-  property tree : Radix::Tree(Raze::WebSocketStack) | Nil = nil
+  property tree : Raze::Radix(Raze::WebSocketStack) | Nil = nil
 
   def initialize(handlers : Array(Raze::WebSocketHandler), &block : HTTP::WebSocket, HTTP::Server::Context -> Void)
     @middlewares = handlers
