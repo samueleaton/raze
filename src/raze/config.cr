@@ -4,7 +4,7 @@ class Raze::Config
   property host = "0.0.0.0"
   property port = 7777
   property reuse_port = false
-  property env = "development"
+  property env = ENV["CRYSTAL_ENV"]? || ENV["crystal_env"]? || "development"
   property static_dir_listing = false
   property compress = true
   property static_indexing = true
