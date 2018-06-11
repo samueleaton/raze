@@ -37,7 +37,7 @@ module Raze
       end
     end
 
-    server = HTTP::Server.new(config.host, config.port, config.global_handlers)
+    server = HTTP::Server.new(config.global_handlers)
 
     # tls/ssl if a key and a cert are added to config
     if config.tls_key && config.tls_cert
@@ -48,6 +48,6 @@ module Raze
     end
 
     puts "\nlistening at localhost:" + config.port.to_s if config.logging
-    server.listen(reuse_port: config.reuse_port)
+    server.listen(config.host, config.port, config.reuse_port)
   end
 end
