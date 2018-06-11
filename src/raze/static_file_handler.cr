@@ -74,7 +74,7 @@ class Raze::StaticFileHandler < HTTP::StaticFileHandler
   end
 
   private def etag(ctx, resource_path)
-    etag = %{W/"#{File.lstat(resource_path).mtime.epoch.to_s}"}
+    etag = %{W/"#{File.info(resource_path).modification_time.epoch.to_s}"}
 
     headers = ctx.request.headers
     headers["ETag"] = etag
