@@ -14,7 +14,6 @@ class HelloWorld < Raze::Handler
   end
 end
 
-
 describe Raze::ServerHandler do
   it "can take a request" do
     stack = Raze::Stack.new do |ctx|
@@ -38,7 +37,7 @@ describe Raze::ServerHandler do
   end
 
   it "can run a stack of middlewares" do
-    stack = Raze::Stack.new SetStatus202.new() do |ctx|
+    stack = Raze::Stack.new SetStatus202.new do |ctx|
       "hello, world!"
     end
     Raze::ServerHandler::INSTANCE.add_stack "GET", "/", stack
@@ -49,7 +48,7 @@ describe Raze::ServerHandler do
   end
 
   it "can run a stack of middlewares without a block" do
-    stack = Raze::Stack.new SetStatus202.new(), HelloWorld.new()
+    stack = Raze::Stack.new SetStatus202.new, HelloWorld.new
     Raze::ServerHandler::INSTANCE.add_stack "GET", "/", stack
     request = HTTP::Request.new("GET", "/")
     client_response = call_request_on_app(request)
@@ -58,8 +57,8 @@ describe Raze::ServerHandler do
   end
 
   it "should successfully sub-tree the stacks" do
-    stack1 = Raze::Stack.new SetStatus202.new()
-    stack2 = Raze::Stack.new HelloWorld.new()
+    stack1 = Raze::Stack.new SetStatus202.new
+    stack2 = Raze::Stack.new HelloWorld.new
     stack3 = Raze::Stack.new do |ctx|
       "yee"
     end

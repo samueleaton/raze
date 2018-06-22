@@ -10,7 +10,8 @@ describe Raze::Stack do
   it "can take an Array of handlers and a block" do
     handler1 = CustomHandler1.new
     handler2 = CustomHandler2.new
-    stack = Raze::Stack.new [handler1, handler2] do |ctx|
+    handlers = [handler1, handler2] of Raze::Handler
+    stack = Raze::Stack.new(handlers) do |ctx|
     end
     stack.class.should eq(Raze::Stack)
     typeof(stack.middlewares).should eq(Array(Raze::Handler))
@@ -20,7 +21,8 @@ describe Raze::Stack do
   it "can take an Array of handlers with no block" do
     handler1 = CustomHandler1.new
     handler2 = CustomHandler2.new
-    stack = Raze::Stack.new [handler1, handler2]
+    handlers = [handler1, handler2] of Raze::Handler
+    stack = Raze::Stack.new(handlers)
     stack.class.should eq(Raze::Stack)
     typeof(stack.middlewares).should eq(Array(Raze::Handler))
     stack.middlewares.size.should eq(2)
