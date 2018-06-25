@@ -7,10 +7,10 @@ end
 module Raze
   def self.ws_channel(ws_channel_name)
     ws_channels = Raze::WebSocketChannels::INSTANCE.channels
+
     if ws_channel = ws_channels[ws_channel_name]?
-      ws_channel
-    else
-      ws_channels[ws_channel_name] = Raze::WebSocketChannel.new ws_channel_name
+      return ws_channel
     end
+    ws_channels[ws_channel_name] = Raze::WebSocketChannel.new ws_channel_name
   end
 end

@@ -9,12 +9,9 @@ require "./raze/*"
 module Raze
   def self.run(port = Raze.config.port)
     config = Raze.config
-    config.global_handlers << Raze::ExceptionHandler::INSTANCE
     Raze::StaticFileHandler::INSTANCE.public_dir = config.static_dir
-    Raze.config.dynamic_static_paths << "/" unless config.static_indexing
-    config.global_handlers << Raze::StaticFileHandler::INSTANCE
-    config.global_handlers << Raze::WebSocketServerHandler::INSTANCE
-    config.global_handlers << Raze::ServerHandler::INSTANCE
+    Raze.config.dynamic_static_paths << '/' unless config.static_indexing
+    config.global_handlers << Raze::ExceptionHandler::INSTANCE << Raze::StaticFileHandler::INSTANCE << Raze::WebSocketServerHandler::INSTANCE << Raze::ServerHandler::INSTANCE
     config.setup
 
     unless Raze.config.error_handlers.has_key?(404)
@@ -47,7 +44,7 @@ module Raze
       server.tls = tls_context
     end
 
-    puts "\nlistening at localhost:" + config.port.to_s if config.logging
+    puts "\nlistening at localhost: #{config.port}" if config.logging
     server.listen(config.host, config.port, config.reuse_port)
   end
 end

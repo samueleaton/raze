@@ -7,13 +7,13 @@ class Raze::WebSocketChannel
   end
 
   def add(sock)
-    websockets << sock unless websockets.find { |ws| ws.object_id == sock.object_id }
+    websockets << sock unless websockets.find &.object_id == sock.object_id
     sock.on_close { remove sock }
     self
   end
 
   def remove(sock : HTTP::WebSocket)
-    removed_socks = websockets.reject! { |ws| ws.object_id == sock.object_id }
+    removed_socks = websockets.reject! &.object_id == sock.object_id
     Raze::WebSocketChannels::INSTANCE.channels.delete(@channel_name) if websockets.size <= 0
   end
 
@@ -23,9 +23,7 @@ class Raze::WebSocketChannel
   end
 
   def broadcast(msg : String)
-    websockets.each do |ws|
-      ws.send(msg)
-    end
+    websockets.each &.send msg
   end
 
   def size

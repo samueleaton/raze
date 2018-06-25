@@ -70,16 +70,19 @@ class Raze::ServerHandler
     # check if there is a stack in radix that matches path
     node = radix_path ctx.request.method, ctx.request.path
     lookup_result = @tree.find node
-    raise Raze::Exceptions::RouteNotFound.new(ctx) unless lookup_result.found?
 
-    # set context params
-    ctx.params = lookup_result.params
+    if !lookup_result.found?
+      Raze::Exceptions::RouteNotFound.new(ctx)
+    else
+      # set context params
+      ctx.params = lookup_result.params
 
-    # run the stack
-    stack = lookup_result.payload.as(Raze::Stack)
-    content = stack.run ctx
-  ensure
-    if Raze.config.error_handlers.has_key?(ctx.response.status_code)
+      # run the stack
+      stack = lookup_result.payload.as(Raze::Stack)
+      content = stack.run ctx
+    end
+
+    if Raze.config.error_handlers[ctx.response.status_code]?
       raise Raze::Exceptions::CustomException.new(ctx)
     elsif !ctx.response.closed? && content.is_a?(String)
       ctx.response.print content
@@ -92,10 +95,6 @@ class Raze::ServerHandler
   end
 
   private def radix_path(method, path)
-    String.build do |str|
-      str << "/"
-      str << method.downcase
-      str << path
-    end
+    '/' + method.downcase + path
   end
 end

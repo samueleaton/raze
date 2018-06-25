@@ -59,9 +59,7 @@ describe Raze::ServerHandler do
   it "should successfully sub-tree the stacks" do
     stack1 = Raze::Stack.new SetStatus202.new
     stack2 = Raze::Stack.new HelloWorld.new
-    stack3 = Raze::Stack.new do |ctx|
-      "yee"
-    end
+    stack3 = Raze::Stack.new { |ctx| "yee" }
 
     Raze::ServerHandler::INSTANCE.add_stack "GET", "/hel*", stack1
     Raze::ServerHandler::INSTANCE.add_stack "GET", "/hello*", stack2

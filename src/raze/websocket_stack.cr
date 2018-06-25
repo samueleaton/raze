@@ -5,22 +5,22 @@ class Raze::WebSocketStack
   # A sub tree is used in case this stack is indexed using a wildcard
   # For example, if there is one stack at the path "/hel**" and another at the
   # path "/hello", the latter would be in the subtree of the first
-  property tree : Raze::Radix(Raze::WebSocketStack) | Nil = nil
+  property tree : Raze::Radix(Raze::WebSocketStack)? = nil
 
-  def initialize(handlers : Array(Raze::WebSocketHandler), &block : HTTP::WebSocket, HTTP::Server::Context -> Void)
+  def initialize(handlers : Array(Raze::WebSocketHandler), &block : HTTP::WebSocket, HTTP::Server::Context -> Nil)
     @middlewares = handlers
     @block = block
   end
 
-  def initialize(*handlers, &block : HTTP::WebSocket, HTTP::Server::Context -> Void)
+  def initialize(*handlers, &block : HTTP::WebSocket, HTTP::Server::Context -> Nil)
     @middlewares = [] of Raze::WebSocketHandler
-    handlers.each { |mw| @middlewares << mw }
+    @middlewares.concat handlers
     @block = block
   end
 
   def initialize(*handlers)
     @middlewares = [] of Raze::WebSocketHandler
-    handlers.each { |mw| @middlewares << mw }
+    @middlewares.concat handlers
     @block = nil
   end
 
@@ -29,7 +29,7 @@ class Raze::WebSocketStack
     @block = nil
   end
 
-  def initialize(&block : HTTP::WebSocket, HTTP::Server::Context -> Void)
+  def initialize(&block : HTTP::WebSocket, HTTP::Server::Context -> Nil)
     @middlewares = [] of Raze::WebSocketHandler
     @block = block
   end
@@ -57,9 +57,9 @@ class Raze::WebSocketStack
       mw.call ws, ctx, ->{ self.next(index + 1, ws, ctx) }
     elsif block = @block
       block.call(ws, ctx)
-    elsif _tree = tree
+    elsif !tree.nil?
       # find and run the sub tree
-      find_result = _tree.find(radix_path(ctx.request.path))
+      find_result = tree.find(radix_path(ctx.request.path))
       if find_result.found?
         ctx.params = find_result.params
         find_result.payload.as(Raze::WebSocketStack).run(ws, ctx)
@@ -68,9 +68,6 @@ class Raze::WebSocketStack
   end
 
   private def radix_path(path)
-    String.build do |str|
-      str << "/WS"
-      str << path
-    end
+    "/ws" + path
   end
 end

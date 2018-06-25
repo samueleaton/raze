@@ -1,4 +1,5 @@
 class Raze::Stack
+  alias Context_types = HTTP::Server::Context | String | Int32 | Int64 | Bool | Nil
   getter middlewares
   getter block
   # A sub tree is used in case this stack is indexed using a wildcard
@@ -6,7 +7,7 @@ class Raze::Stack
   # path "/hello", the latter would be in the subtree of the first
   property tree : Raze::Radix(Raze::Stack) | Nil = nil
 
-  def initialize(handlers : Array(Raze::Handler), &block : HTTP::Server::Context -> (HTTP::Server::Context | String | Int32 | Int64 | Bool | Nil))
+  def initialize(handlers : Array(Raze::Handler), &block : HTTP::Server::Context -> Context_types)
     @middlewares = handlers
     @block = block
   end
@@ -16,19 +17,19 @@ class Raze::Stack
     @block = nil
   end
 
-  def initialize(*handlers, &block : HTTP::Server::Context -> (HTTP::Server::Context | String | Int32 | Int64 | Bool | Nil))
+  def initialize(*handlers, &block : HTTP::Server::Context -> Context_types)
     @middlewares = [] of Raze::Handler
-    handlers.each { |mw| @middlewares << mw }
+    @middlewares.concat handlers
     @block = block
   end
 
   def initialize(*handlers)
     @middlewares = [] of Raze::Handler
-    handlers.each { |mw| @middlewares << mw }
+    @middlewares.concat handlers
     @block = nil
   end
 
-  def initialize(&block : HTTP::Server::Context -> (HTTP::Server::Context | String | Int32 | Int64 | Bool | Nil))
+  def initialize(&block : HTTP::Server::Context -> Context_types)
     @middlewares = [] of Raze::Handler
     @block = block
   end
@@ -83,10 +84,6 @@ class Raze::Stack
   end
 
   private def radix_path(method, path)
-    String.build do |str|
-      str << "/"
-      str << method.downcase
-      str << path
-    end
+    '/' + method.downcase + path
   end
 end
