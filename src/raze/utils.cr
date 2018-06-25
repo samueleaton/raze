@@ -1,6 +1,6 @@
 module Raze::Utils
   def self.zip_types(file_ext) # https://github.com/h5bp/server-configs-nginx/blob/master/nginx.conf
-    [".htm", ".html", ".txt", ".css", ".js", ".svg", ".json", ".xml", ".otf", ".ttf", ".woff", ".woff2"].includes? file_ext
+    {".htm", ".html", ".txt", ".css", ".js", ".svg", ".json", ".xml", ".otf", ".ttf", ".woff", ".woff2"}.includes? file_ext
   end
 
   def self.mime_type(path)
@@ -24,11 +24,8 @@ module Raze::Utils
   end
 
   def self.parse_params(params : IO?)
-    if params
-      HTTP::Params.parse(params.gets_to_end)
-    else
-      HTTP::Params.parse("")
-    end
+    return HTTP::Params.parse(params.gets_to_end) if params
+    HTTP::Params.parse("")
   end
 
   def self.parse_params(params : String?)

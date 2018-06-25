@@ -5,21 +5,22 @@ class Raze::StaticFileIndexer
 
   def index_files(directory = "")
     base_dir = Raze.config.static_dir
-    dir = "#{base_dir}#{directory}"
+    dir = base_dir + directory
 
     unless Dir.exists? dir
-      puts "Static directory not found: #{dir}" if Raze.config.logging
+      puts "Static directory not found: " + dir if Raze.config.logging
       return
     end
 
-    Dir.each_child "#{base_dir}#{directory}" do |f|
+    Dir.each_child base_dir + directory do |f|
       next if f == "." || f == ".."
-      if File.directory? "#{base_dir}#{directory}/#{f}"
+      file_directory = directory + '/' + f
+      if File.directory? base_dir + file_directory
         # only index directory itself if "dir_listing" is enabled
-        @static_files["#{directory}/#{f}"] = "dir" if Raze.config.static_dir_listing
-        index_files("#{directory}/#{f}")
+        @static_files[file_directory] = "dir" if Raze.config.static_dir_listing
+        index_files file_directory
       else
-        @static_files["#{directory}/#{f}"] = "file"
+        @static_files[file_directory] = "file"
       end
     end
   end

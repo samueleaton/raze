@@ -10,7 +10,7 @@ class Raze::WebSocketServerHandler < HTTP::WebSocketHandler
 
   @radix_paths = [] of String
 
-  def initialize(&@proc : HTTP::WebSocket, HTTP::Server::Context -> Void)
+  def initialize(&@proc : HTTP::WebSocket, HTTP::Server::Context -> Nil)
     @tree = Raze::Radix(Raze::WebSocketStack).new
   end
 
@@ -54,10 +54,7 @@ class Raze::WebSocketServerHandler < HTTP::WebSocketHandler
   end
 
   private def radix_path(path)
-    String.build do |str|
-      str << "/ws"
-      str << path
-    end
+    "/ws" + path
   end
 
   def call(ctx)
@@ -68,7 +65,7 @@ class Raze::WebSocketServerHandler < HTTP::WebSocketHandler
     end
   end
 
-  # def initialize(@path : String, &@proc : HTTP::WebSocket, HTTP::Server::Context -> Void)
+  # def initialize(@path : String, &@proc : HTTP::WebSocket, HTTP::Server::Context -> Nil)
   #   Raze.config.global_handlers << self
   # end
 

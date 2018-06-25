@@ -12,7 +12,10 @@ class Raze::StaticFileHandler < HTTP::StaticFileHandler
   def call(ctx)
     return call_next(ctx) if ctx.request.path.not_nil! == "/"
 
-    unless ctx.request.method == "GET" || ctx.request.method == "HEAD"
+    case ctx.request.method
+    when "GET", "HEAD"
+      # Nothing to do
+    else
       if @fallthrough
         call_next(ctx)
       else
@@ -22,17 +25,11 @@ class Raze::StaticFileHandler < HTTP::StaticFileHandler
       return
     end
 
-    request_path = URI.unescape(ctx.request.path.not_nil!).rstrip "/"
+    request_path = URI.unescape(ctx.request.path.not_nil!).rstrip '/'
 
-    if Raze.config.dynamic_static_paths.size > 0
-      if Raze.config.dynamic_static_paths.any? { |path| request_path.starts_with? path }
-        resource_path = String.build do |str|
-          str << @public_dir
-          str << request_path
-        end
-
-        return process_request(ctx, resource_path)
-      end
+    if Raze.config.dynamic_static_paths.size > 0 && Raze.config.dynamic_static_paths.any? { |path| request_path.starts_with? path }
+      resource_path = @public_dir + request_path
+      return process_request(ctx, resource_path)
     end
 
     file_or_dir = nil
@@ -41,23 +38,18 @@ class Raze::StaticFileHandler < HTTP::StaticFileHandler
 
       return call_next(ctx) unless file_or_dir
     end
-    resource_path = String.build do |str|
-      str << @public_dir
-      str << request_path
-    end
+    resource_path = @public_dir + request_path
 
-    if file_or_dir
-      process_request(ctx, file_or_dir, request_path, resource_path)
-    else
-      process_request(ctx, resource_path)
-    end
+    return process_request(ctx, file_or_dir, request_path, resource_path) if file_or_dir
+    process_request(ctx, resource_path)
   end
 
   private def process_request(ctx, file_type, request_path, resource_path)
-    if file_type == "dir"
+    case file_type
+    when "dir"
       ctx.response.content_type = "text/html"
       directory_listing(ctx.response, request_path, resource_path)
-    elsif file_type == "file"
+    when "file"
       return if etag(ctx, resource_path)
       Raze::Helpers.send_file(ctx, resource_path)
     else
@@ -74,7 +66,7 @@ class Raze::StaticFileHandler < HTTP::StaticFileHandler
   end
 
   private def etag(ctx, resource_path)
-    etag = %{W/"#{File.info(resource_path).modification_time.epoch.to_s}"}
+    etag = %{W/"#{File.info(resource_path).modification_time.epoch}"}
 
     headers = ctx.request.headers
     headers["ETag"] = etag
@@ -83,6 +75,6 @@ class Raze::StaticFileHandler < HTTP::StaticFileHandler
     ctx.response.headers.delete "Content-Type"
     ctx.response.content_length = 0
     ctx.response.status_code = 304 # not modified
-    return true
+    true
   end
 end
