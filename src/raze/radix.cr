@@ -12,16 +12,17 @@ class Raze::Radix(T)
 
   def find(path)
     # if the route already has a cached result, use it
-    if cached_result = @cached_results[path]?
-      return cached_result
+    if cached = @cached_results[path]?
+      return cached
     end
 
     result = @tree.find(path)
 
-    # if the route has an associated stack and there are no dynamic params, cache it
-    if result.found? && result.params.empty?
-      @cached_results[path] = result
-    end
+    # If the route has an associated stack and there are no dynamic params, cache it.
+    # This doesn't cache the HTTP response or anything like that, it just caches
+    # the associated block with the route path so it doesn't have to parse the
+    # path again
+    @cached_results[path] = result if result.found? && result.params.empty?
 
     result
   end

@@ -54,10 +54,7 @@ class Raze::WebSocketServerHandler < HTTP::WebSocketHandler
   end
 
   private def radix_path(path)
-    String.build do |str|
-      str << "/ws"
-      str << path
-    end
+    "/ws" + path
   end
 
   def call(ctx)
@@ -67,13 +64,4 @@ class Raze::WebSocketServerHandler < HTTP::WebSocketHandler
       raise Raze::Exceptions::CustomException.new(ctx)
     end
   end
-
-  # def initialize(@path : String, &@proc : HTTP::WebSocket, HTTP::Server::Context -> Void)
-  #   Raze.config.global_handlers << self
-  # end
-
-  # def call(context)
-  #   return call_next(context) unless context.request.path.not_nil! == @path
-  #   super
-  # end
 end

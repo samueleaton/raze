@@ -1,5 +1,5 @@
 name: raze
-version: 0.1.0
+version: 0.3.0
 
 authors:
   - Sam Eaton <sam@eaton.party.com>
@@ -8,7 +8,7 @@ targets:
   raze:
     main: src/raze.cr
 
-crystal: 0.21.1
+crystal: 0.26.0
 
 dependencies:
   radix:

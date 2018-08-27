@@ -1,5 +1,7 @@
 HTTP_METHODS_OPTIONS = %w(get post put patch delete options)
 
+alias ContextTypes = HTTP::Server::Context | String | Int32 | Int64 | Bool | Nil
+
 {% for method in HTTP_METHODS_OPTIONS %}
 
   # ```
@@ -8,8 +10,8 @@ HTTP_METHODS_OPTIONS = %w(get post put patch delete options)
   # end
   # ```
 
-  def {{method.id}}(path, &block : HTTP::Server::Context -> (HTTP::Server::Context|String|Int32|Int64|Bool|Nil))
-    raise "websocket path \"#{path}\" must start with a \"/\"" unless path.starts_with? "/"
+  def {{method.id}}(path, &block : HTTP::Server::Context -> (ContextTypes))
+    raise "websocket path \"#{path}\" must start with a \"/\"" unless path.starts_with? '/'
     stack = Raze::Stack.new(&block)
     Raze::ServerHandler::INSTANCE.add_stack {{method}}.upcase, path, stack
   end
@@ -19,7 +21,7 @@ HTTP_METHODS_OPTIONS = %w(get post put patch delete options)
   # ```
 
   def {{method.id}}(path, middlewares : Array(Raze::Handler))
-    raise "websocket path \"#{path}\" must start with a \"/\"" unless path.starts_with? "/"
+    raise "websocket path \"#{path}\" must start with a \"/\"" unless path.starts_with? '/'
     stack = Raze::Stack.new(middlewares)
     Raze::ServerHandler::INSTANCE.add_stack {{method}}.upcase, path, stack
   end
@@ -30,8 +32,8 @@ HTTP_METHODS_OPTIONS = %w(get post put patch delete options)
   # end
   # ```
 
-  def {{method.id}}(path, middlewares : Array(Raze::Handler), &block : HTTP::Server::Context -> (HTTP::Server::Context|String|Int32|Int64|Bool|Nil))
-    raise "websocket path \"#{path}\" must start with a \"/\"" unless path.starts_with? "/"
+  def {{method.id}}(path, middlewares : Array(Raze::Handler), &block : HTTP::Server::Context -> (ContextTypes))
+    raise "websocket path \"#{path}\" must start with a \"/\"" unless path.starts_with? '/'
     stack = Raze::Stack.new(middlewares, &block)
     Raze::ServerHandler::INSTANCE.add_stack {{method}}.upcase, path, stack
   end
@@ -41,7 +43,7 @@ HTTP_METHODS_OPTIONS = %w(get post put patch delete options)
   # ```
 
   def {{method.id}}(path, *middlewares)
-    raise "websocket path \"#{path}\" must start with a \"/\"" unless path.starts_with? "/"
+    raise "websocket path \"#{path}\" must start with a \"/\"" unless path.starts_with? '/'
     stack = Raze::Stack.new(*middlewares)
     Raze::ServerHandler::INSTANCE.add_stack {{method}}.upcase, path, stack
   end
@@ -52,8 +54,8 @@ HTTP_METHODS_OPTIONS = %w(get post put patch delete options)
   # end
   # ```
 
-  def {{method.id}}(path, *middlewares, &block : HTTP::Server::Context -> (HTTP::Server::Context|String|Int32|Int64|Bool|Nil))
-    raise "path \"#{path}\" must start with a \"/\"" unless path.starts_with? "/"
+  def {{method.id}}(path, *middlewares, &block : HTTP::Server::Context -> (ContextTypes))
+    raise "path \"#{path}\" must start with a \"/\"" unless path.starts_with? '/'
     stack = Raze::Stack.new(*middlewares, &block)
     Raze::ServerHandler::INSTANCE.add_stack {{method}}.upcase, path, stack
   end
@@ -61,7 +63,7 @@ HTTP_METHODS_OPTIONS = %w(get post put patch delete options)
 {% end %}
 
 def all(path, &block : HTTP::Server::Context -> (HTTP::Server::Context | String | Int32 | Int64 | Bool | Nil))
-  raise "websocket path \"#{path}\" must start with a \"/\"" unless path.starts_with? "/"
+  raise "websocket path \"#{path}\" must start with a \"/\"" unless path.starts_with? '/'
   stack = Raze::Stack.new(&block)
   HTTP_METHODS_OPTIONS.each do |method|
     Raze::ServerHandler::INSTANCE.add_stack method.upcase, path, stack
@@ -69,7 +71,7 @@ def all(path, &block : HTTP::Server::Context -> (HTTP::Server::Context | String 
 end
 
 def all(path, middlewares : Array(Raze::Handler))
-  raise "websocket path \"#{path}\" must start with a \"/\"" unless path.starts_with? "/"
+  raise "websocket path \"#{path}\" must start with a \"/\"" unless path.starts_with? '/'
   stack = Raze::Stack.new(middlewares)
   HTTP_METHODS_OPTIONS.each do |method|
     Raze::ServerHandler::INSTANCE.add_stack method.upcase, path, stack
@@ -77,7 +79,7 @@ def all(path, middlewares : Array(Raze::Handler))
 end
 
 def all(path, middlewares : Array(Raze::Handler), &block : HTTP::Server::Context -> (HTTP::Server::Context | String | Int32 | Int64 | Bool | Nil))
-  raise "websocket path \"#{path}\" must start with a \"/\"" unless path.starts_with? "/"
+  raise "websocket path \"#{path}\" must start with a \"/\"" unless path.starts_with? '/'
   stack = Raze::Stack.new(middlewares, &block)
   HTTP_METHODS_OPTIONS.each do |method|
     Raze::ServerHandler::INSTANCE.add_stack method.upcase, path, stack
@@ -85,7 +87,7 @@ def all(path, middlewares : Array(Raze::Handler), &block : HTTP::Server::Context
 end
 
 def all(path, *middlewares)
-  raise "websocket path \"#{path}\" must start with a \"/\"" unless path.starts_with? "/"
+  raise "websocket path \"#{path}\" must start with a \"/\"" unless path.starts_with? '/'
   stack = Raze::Stack.new(*middlewares)
   HTTP_METHODS_OPTIONS.each do |method|
     Raze::ServerHandler::INSTANCE.add_stack method.upcase, path, stack
@@ -93,7 +95,7 @@ def all(path, *middlewares)
 end
 
 def all(path, *middlewares, &block : HTTP::Server::Context -> (HTTP::Server::Context | String | Int32 | Int64 | Bool | Nil))
-  raise "path \"#{path}\" must start with a \"/\"" unless path.starts_with? "/"
+  raise "path \"#{path}\" must start with a \"/\"" unless path.starts_with? '/'
   stack = Raze::Stack.new(*middlewares, &block)
   HTTP_METHODS_OPTIONS.each do |method|
     Raze::ServerHandler::INSTANCE.add_stack method.upcase, path, stack
@@ -101,31 +103,31 @@ def all(path, *middlewares, &block : HTTP::Server::Context -> (HTTP::Server::Con
 end
 
 def ws(path, &block : HTTP::WebSocket, HTTP::Server::Context -> Void)
-  raise "websocket path \"#{path}\" must start with a \"/\"" unless path.starts_with? "/"
+  raise "websocket path \"#{path}\" must start with a \"/\"" unless path.starts_with? '/'
   stack = Raze::WebSocketStack.new(&block)
   Raze::WebSocketServerHandler::INSTANCE.add_stack path, stack
 end
 
 def ws(path, middlewares : Array(Raze::WebSocketHandler))
-  raise "websocket path \"#{path}\" must start with a \"/\"" unless path.starts_with? "/"
+  raise "websocket path \"#{path}\" must start with a \"/\"" unless path.starts_with? '/'
   stack = Raze::WebSocketStack.new(middlewares)
   Raze::WebSocketServerHandler::INSTANCE.add_stack path, stack
 end
 
 def ws(path, middlewares : Array(Raze::WebSocketHandler), &block : HTTP::WebSocket, HTTP::Server::Context -> Void)
-  raise "websocket path \"#{path}\" must start with a \"/\"" unless path.starts_with? "/"
+  raise "websocket path \"#{path}\" must start with a \"/\"" unless path.starts_with? '/'
   stack = Raze::WebSocketStack.new(middlewares, &block)
   Raze::WebSocketServerHandler::INSTANCE.add_stack path, stack
 end
 
 def ws(path, *middlewares)
-  raise "websocket path \"#{path}\" must start with a \"/\"" unless path.starts_with? "/"
+  raise "websocket path \"#{path}\" must start with a \"/\"" unless path.starts_with? '/'
   stack = Raze::WebSocketStack.new(*middlewares)
   Raze::WebSocketServerHandler::INSTANCE.add_stack path, stack
 end
 
 def ws(path, *middlewares, &block : HTTP::WebSocket, HTTP::Server::Context -> Void)
-  raise "websocket path \"#{path}\" must start with a \"/\"" unless path.starts_with? "/"
+  raise "websocket path \"#{path}\" must start with a \"/\"" unless path.starts_with? '/'
   stack = Raze::WebSocketStack.new(*middlewares, &block)
   Raze::WebSocketServerHandler::INSTANCE.add_stack path, stack
 end
