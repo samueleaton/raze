@@ -10,6 +10,8 @@
 
 > Raze for days.
 
+Raze is a lightweight HTTP framework with a focus on building APIs and containerized services. If you want a more general purpose framwork with static file serving, check out [Kemal](https://github.com/kemalcr/kemal).
+
 ## Installation
 
 Add this to your application's `shard.yml`:
