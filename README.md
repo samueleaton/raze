@@ -10,6 +10,8 @@
 
 > Raze for days.
 
+## NOTICE: I am archiving this project. I have since built something even better which I've been using for a couple years (However, it isn't open sourced)
+
 Raze is a lightweight HTTP framework with a focus on building APIs and containerized services. If you want a more general purpose framwork with static file serving, check out [Kemal](https://github.com/kemalcr/kemal).
 
 ## Installation
