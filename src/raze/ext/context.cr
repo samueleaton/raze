@@ -1,11 +1,9 @@
 class HTTP::Server
   class Context
-    TYPE_MAP = [Nil, String, Int32, Int64, Float64, Bool]
+    getter params = {} of String => Nil | String | Int32 | Int64 | Float64 | Bool
 
     macro finished
-      alias StoreTypes = Union({{ *TYPE_MAP }})
-      getter params = {} of String => StoreTypes
-      getter state = {} of String => StoreTypes
+      getter state = Raze::State.new
     end
 
     def query
