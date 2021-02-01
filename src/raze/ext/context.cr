@@ -14,7 +14,7 @@ class HTTP::Server
 
     def params=(parameters)
       parameters.each do |key, val|
-        @params[key] = URI.unescape(val)
+        @params[key] = URI.decode(val)
       end
     end
 
